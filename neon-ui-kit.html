@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEON//KIT — витрина UI-компонентов</title>
+
+<!-- Шрифты без засечек: Inter для текста, JetBrains Mono для технических подписей и цифр -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   1. ТОКЕНЫ ДИЗАЙН-СИСТЕМЫ
+   Все цвета, радиусы, тайминги и уровни свечения объявлены
+   один раз здесь и переиспользуются во всех правилах ниже.
+   ============================================================ */
+:root {
+  /* Поверхности */
+  --bg:            #0d0d0d;   /* фон страницы — очень тёмный графит */
+  --surface:       #131313;   /* панели секций */
+  --surface-2:     #191919;   /* поля ввода, вложенные блоки */
+  --elevated:      #1c1c1c;   /* модальное окно, мобильное меню */
+
+  /* Неон */
+  --neon:          #00ff9d;   /* основной акцент */
+  --neon-dim:      #00b370;   /* приглушённый акцент */
+  --neon-soft:     rgba(0, 255, 157, 0.10);
+  --border:        rgba(0, 255, 157, 0.16);  /* тонкая неоновая граница в покое */
+  --border-strong: rgba(0, 255, 157, 0.45);
+
+  /* Текст */
+  --text:          #e6f3ec;
+  --muted:         #7c8b83;
+  --dim:           #4d5a53;
+  --danger:        #ff3b5c;
+
+  /* Свечение — три уровня интенсивности */
+  --glow-sm: 0 0 10px rgba(0, 255, 157, 0.30);
+  --glow-md: 0 0 18px rgba(0, 255, 157, 0.45), 0 0 40px rgba(0, 255, 157, 0.16);
+  --glow-lg: 0 0 26px rgba(0, 255, 157, 0.60), 0 0 70px rgba(0, 255, 157, 0.22);
+  --glow-danger: 0 0 14px rgba(255, 59, 92, 0.45);
+
+  /* Геометрия */
+  --radius:       15px;   /* базовое скругление по дизайн-коду */
+  --radius-sm:    10px;
+  --radius-full:  999px;
+
+  /* Тайминги: разные по природе движения — разной длительности */
+  --t-instant: 130ms cubic-bezier(.4, 0, 1, 1);
+  --t-fast:    220ms cubic-bezier(.2, 0, .2, 1);
+  --t-medium:  380ms cubic-bezier(.16, 1, .3, 1);
+
+  /* Шрифты */
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+}
+
+/* ============================================================
+   2. БАЗОВЫЕ СТИЛИ
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  /* Мягкие неоновые пятна на фоне — дают глубину под полупрозрачными панелями */
+  background-image:
+    radial-gradient(600px circle at 15% 0%,   rgba(0, 255, 157, 0.07), transparent 60%),
+    radial-gradient(500px circle at 85% 30%,  rgba(0, 255, 157, 0.05), transparent 60%);
+  background-attachment: fixed;
+}
+
+h1, h2, h3 { margin: 0; line-height: 1.15; }
+
+/* Единый видимый фокус для всей страницы — обязателен для клавиатурной навигации */
+:focus-visible {
+  outline: 2px solid var(--neon);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Техническая подпись — моноширинная, разрежённая, приглушённая */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* ============================================================
+   3. БЛОК 6 — ВЕРХНЕЕ МЕНЮ
+   Sticky-панель с анимированным подчёркиванием пунктов.
+   На мобильных превращается в бургер.
+   ============================================================ */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13, 13, 13, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.navbar__logo {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: .08em;
+  color: var(--neon);
+  text-shadow: var(--glow-sm);
+}
+
+.navbar__links {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Пункт меню: подчёркивание раскрывается слева направо через scaleX */
+.navbar__link {
+  position: relative;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 4px 0;
+  transition: color var(--t-instant);
+}
+.navbar__link::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 1px;
+  background: var(--neon);
+  box-shadow: var(--glow-sm);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-fast);
+}
+.navbar__link:hover,
+.navbar__link:focus-visible { color: var(--neon); }
+.navbar__link:hover::after,
+.navbar__link:focus-visible::after { transform: scaleX(1); }
+
+/* Кнопка-бургер: три линии, складывающиеся в крестик */
+.burger {
+  display: none;
+  width: 44px; height: 44px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+}
+.burger__line {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 20px; height: 2px;
+  margin-left: -10px;
+  background: var(--neon);
+  border-radius: 2px;
+  transition: transform var(--t-medium), opacity var(--t-fast);
+}
+.burger__line:nth-child(1) { transform: translateY(-7px); }
+.burger__line:nth-child(2) { transform: translateY(0); }
+.burger__line:nth-child(3) { transform: translateY(7px); }
+.burger[aria-expanded="true"] .burger__line:nth-child(1) { transform: rotate(45deg); }
+.burger[aria-expanded="true"] .burger__line:nth-child(2) { opacity: 0; }
+.burger[aria-expanded="true"] .burger__line:nth-child(3) { transform: rotate(-45deg); }
+
+/* Выпадающая панель мобильного меню */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 64px; left: 0; right: 0;
+  z-index: 110;
+  background: var(--elevated);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px 24px;
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity var(--t-medium), transform var(--t-medium);
+}
+.mobile-menu.is-open { opacity: 1; transform: translateY(0); }
+.mobile-menu a {
+  display: block;
+  padding: 14px 4px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 17px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.mobile-menu a:hover { color: var(--neon); }
+
+/* ============================================================
+   4. HERO + БЛОК 9 — ПРОГРЕСС-БАР
+   ============================================================ */
+.hero { padding: 70px 0 50px; }
+.hero h1 {
+  font-size: clamp(30px, 6vw, 54px);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  margin: 14px 0 12px;
+}
+.hero h1 span { color: var(--neon); text-shadow: var(--glow-md); }
+.hero p { color: var(--muted); max-width: 560px; margin: 0 0 30px; }
+
+/* Дорожка прогресс-бара */
+.progress {
+  max-width: 460px;
+}
+.progress__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.progress__value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--neon);
+  font-variant-numeric: tabular-nums; /* цифры не «прыгают» при смене разрядности */
+}
+.progress__track {
+  height: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+/* Заполнение идёт через scaleX — дешевле для браузера, чем анимация width */
+.progress__fill {
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--neon-dim), var(--neon));
+  box-shadow: var(--glow-sm);
+}
+.progress__fill.is-done { box-shadow: var(--glow-lg); }
+
+/* ============================================================
+   5. СЕТКА СЕКЦИЙ (CSS Grid)
+   auto-fit + minmax обеспечивает автоматический переход
+   в одну колонку на узких экранах.
+   ============================================================ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 20px;
+  padding-bottom: 70px;
+}
+
+/* Панель секции — тонкая неоновая граница, свечение при наведении */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast);
+}
+.panel:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--glow-sm);
+}
+.panel__title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 6px 0 4px;
+}
+.panel__desc {
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 0 0 22px;
+}
+
+/* Панель на всю ширину сетки — для карточек товаров */
+.panel--wide { grid-column: 1 / -1; }
+
+/* Вспомогательные раскладки внутри панелей */
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+
+/* ============================================================
+   6. БЛОК 1 — КНОПКИ
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;             /* комфортная зона касания на тач-экранах */
+  padding: 0 20px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--t-instant), color var(--t-instant),
+              box-shadow var(--t-instant), transform var(--t-instant),
+              border-color var(--t-instant);
+}
+
+/* Обычная (заливка неоном, тёмный текст) */
+.btn--solid {
+  background: var(--neon);
+  color: #05130d;
+  box-shadow: var(--glow-sm);
+}
+.btn--solid:hover { box-shadow: var(--glow-md); }
+
+/* Контурная */
+.btn--outline {
+  background: transparent;
+  color: var(--neon);
+  border-color: var(--border-strong);
+}
+.btn--outline:hover {
+  background: var(--neon-soft);
+  box-shadow: var(--glow-sm);
+}
+
+/* Приглушённая — для второстепенных действий */
+.btn--ghost {
+  background: transparent;
+  color: var(--muted);
+  border-color: rgba(255,255,255,.10);
+}
+.btn--ghost:hover { color: var(--text); border-color: rgba(255,255,255,.22); }
+
+/* Нажатие — лёгкое «продавливание» */
+.btn:active:not(:disabled) { transform: translateY(1px) scale(.985); }
+
+/* Заблокированная кнопка: свечение и анимации выключены полностью */
+.btn:disabled {
+  opacity: .38;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn__icon { width: 16px; height: 16px; flex: 0 0 auto; }
+
+/* Спиннер «загрузочной» кнопки */
+.spinner {
+  width: 15px; height: 15px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   7. БЛОК 2 — ПОЛЯ ВВОДА
+   ============================================================ */
+.field { position: relative; }
+
+.input {
+  width: 100%;
+  height: 52px;
+  padding: 18px 14px 4px;      /* верхний отступ освобождает место плавающему лейблу */
+  background: var(--surface-2);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;             /* 16px и больше — иначе Safari iOS зумит страницу при фокусе */
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--neon);
+  box-shadow: var(--glow-sm);
+}
+
+/* Плавающий лейбл: в покое лежит по центру поля, при фокусе или
+   при заполненном поле уезжает наверх и уменьшается. */
+.field__label {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 15px;
+  pointer-events: none;
+  transition: transform var(--t-fast), font-size var(--t-fast), color var(--t-fast);
+}
+/* :placeholder-shown = поле пустое. Условие «не пустое ИЛИ в фокусе» поднимает лейбл. */
+.input:focus + .field__label,
+.input:not(:placeholder-shown) + .field__label {
+  transform: translateY(-22px);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  color: var(--neon);
+}
+
+/* Поле поиска с иконкой слева */
+.field--search .input { padding: 0 14px 0 44px; }
+.field__icon {
+  position: absolute;
+  left: 15px; top: 50%;
+  transform: translateY(-50%);
+  width: 17px; height: 17px;
+  color: var(--muted);
+  pointer-events: none;
+  transition: color var(--t-fast);
+}
+.field--search .input:focus ~ .field__icon { color: var(--neon); }
+
+/* Состояние ошибки для полей формы */
+.input.is-invalid {
+  border-color: var(--danger);
+  box-shadow: var(--glow-danger);
+}
+
+/* Автозаполнение браузера перекрашивает фон в белый — гасим это */
+.input:-webkit-autofill,
+.input:-webkit-autofill:focus {
+  -webkit-box-shadow: inset 0 0 0 1000px var(--surface-2);
+  -webkit-text-fill-color: var(--text);
+}
+
+/* ============================================================
+   8. БЛОК 4 — ПЕРЕКЛЮЧАТЕЛИ И ЧЕКБОКСЫ
+   Нативный input не удаляется, а скрывается визуально —
+   иначе ломается работа с клавиатуры.
+   ============================================================ */
+.control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.control input {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+}
+.control__text { font-size: 14px; }
+.control input:disabled ~ .control__text { color: var(--dim); }
+.control:has(input:disabled) { cursor: not-allowed; opacity: .5; }
+
+/* --- Toggle switch --- */
+.toggle {
+  width: 46px; height: 26px;
+  flex: 0 0 auto;
+  background: var(--surface-2);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: var(--radius-full);
+  position: relative;
+  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 18px; height: 18px;
+  background: var(--dim);
+  border-radius: 50%;
+  transition: transform var(--t-fast), background var(--t-fast);
+}
+.control input:checked ~ .toggle {
+  background: var(--neon-soft);
+  border-color: var(--neon);
+  box-shadow: var(--glow-sm);
+}
+.control input:checked ~ .toggle::after {
+  transform: translateX(20px);
+  background: var(--neon);
+}
+.control input:focus-visible ~ .toggle {
+  outline: 2px solid var(--neon);
+  outline-offset: 3px;
+}
+
+/* --- Кастомный чекбокс --- */
+.checkbox {
+  width: 22px; height: 22px;
+  flex: 0 0 auto;
+  background: var(--surface-2);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 7px;
+  position: relative;
+  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
+}
+/* Галочка нарисована двумя гранями повёрнутого прямоугольника */
+.checkbox::after {
+  content: '';
+  position: absolute;
+  left: 7px; top: 3px;
+  width: 5px; height: 10px;
+  border: solid var(--neon);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform var(--t-fast);
+}
+.control input:checked ~ .checkbox {
+  border-color: var(--neon);
+  background: var(--neon-soft);
+  box-shadow: var(--glow-sm);
+}
+.control input:checked ~ .checkbox::after { transform: rotate(45deg) scale(1); }
+.control input:focus-visible ~ .checkbox {
+  outline: 2px solid var(--neon);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   9. БЛОК 5 — КАРТОЧКИ ТОВАРОВ
+   ============================================================ */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+.card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.card:hover {
+  transform: translateY(-5px);
+  border-color: var(--border-strong);
+  box-shadow: var(--glow-md);
+}
+.card__media {
+  aspect-ratio: 3 / 2;   /* держит место до загрузки картинки — вёрстка не прыгает */
+  overflow: hidden;
+  background: #0a0a0a;
+}
+.card__media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(.55) brightness(.8);
+  transition: transform var(--t-medium), filter var(--t-medium);
+}
+.card:hover .card__media img {
+  transform: scale(1.07);
+  filter: saturate(1) brightness(1);
+}
+.card__body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.card__title { font-size: 15px; font-weight: 700; }
+.card__text { color: var(--muted); font-size: 13px; margin: 0; flex: 1; }
+.card__price {
+  font-family: var(--font-mono);
+  color: var(--neon);
+  font-size: 17px;
+  font-weight: 700;
+}
+.card .btn { width: 100%; margin-top: 4px; }
+
+/* ============================================================
+   10. БЛОК 8 — СЛАЙДЕР (range)
+   Нативный range с полной перерисовкой. Правила для WebKit
+   и Firefox записаны отдельно — объединять их запятой нельзя,
+   браузер отбросит всё правило целиком.
+   ============================================================ */
+.slider__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+.slider__value {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--neon);
+  text-shadow: var(--glow-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+  /* --fill обновляется из JS и задаёт долю заполненной части дорожки */
+  --fill: 0%;
+}
+.range:focus { outline: none; }
+.range:focus-visible { outline: 2px solid var(--neon); outline-offset: 6px; border-radius: 4px; }
+
+/* Дорожка — WebKit */
+.range::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(to right,
+    var(--neon) 0%, var(--neon) var(--fill),
+    #262626 var(--fill), #262626 100%);
+}
+/* Дорожка — Firefox */
+.range::-moz-range-track {
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: #262626;
+}
+.range::-moz-range-progress {
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--neon);
+}
+
+/* Ползунок — WebKit */
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px; height: 18px;
+  margin-top: -6.5px;          /* центрирование относительно дорожки */
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--neon);
+  box-shadow: var(--glow-sm);
+  transition: transform var(--t-instant), box-shadow var(--t-instant);
+}
+.range:hover::-webkit-slider-thumb { transform: scale(1.18); box-shadow: var(--glow-md); }
+.range:active::-webkit-slider-thumb { box-shadow: var(--glow-lg); }
+
+/* Ползунок — Firefox */
+.range::-moz-range-thumb {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--neon);
+  box-shadow: var(--glow-sm);
+}
+
+/* ============================================================
+   11. БЛОК 7 — МОДАЛЬНОЕ ОКНО
+   ============================================================ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, .76);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--t-medium), visibility var(--t-medium);
+}
+.overlay.is-open { opacity: 1; visibility: visible; }
+
+/* Появление окна: opacity + scale одновременно */
+.modal {
+  width: 100%;
+  max-width: 400px;
+  background: var(--elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--glow-md);
+  padding: 30px 26px 26px;
+  text-align: center;
+  position: relative;
+  opacity: 0;
+  transform: scale(.93);
+  transition: opacity var(--t-medium), transform var(--t-medium);
+}
+.overlay.is-open .modal { opacity: 1; transform: scale(1); }
+
+.modal__close {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 40px; height: 40px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--t-instant), background var(--t-instant);
+}
+.modal__close:hover { color: var(--neon); background: var(--neon-soft); }
+
+.modal__avatar {
+  width: 76px; height: 76px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  border: 2px solid var(--neon);
+  box-shadow: var(--glow-md);
+  object-fit: cover;
+  display: block;
+}
+.modal__name { font-size: 20px; font-weight: 700; }
+.modal__role { color: var(--muted); font-size: 13px; margin: 4px 0 20px; }
+
+.modal__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.modal__stat {
+  background: var(--surface-2);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-sm);
+  padding: 12px 6px;
+}
+.modal__stat b {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--neon);
+}
+.modal__stat span { font-size: 11px; color: var(--muted); }
+.modal__actions { display: flex; gap: 10px; }
+.modal__actions .btn { flex: 1; }
+
+/* ============================================================
+   12. TOAST-УВЕДОМЛЕНИЯ
+   ============================================================ */
+.toasts {
+  position: fixed;
+  bottom: 22px; right: 22px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 250px;
+  max-width: 330px;
+  padding: 14px 16px;
+  background: var(--elevated);
+  border: 1px solid var(--neon);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  box-shadow: var(--glow-md);
+  font-size: 14px;
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity var(--t-medium), transform var(--t-medium);
+}
+.toast.is-visible { opacity: 1; transform: translateX(0); }
+.toast--error { border-color: var(--danger); box-shadow: var(--glow-danger); }
+.toast__dot {
+  width: 8px; height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--neon);
+  box-shadow: var(--glow-sm);
+}
+.toast--error .toast__dot { background: var(--danger); box-shadow: none; }
+
+/* ============================================================
+   13. ПОДВАЛ
+   ============================================================ */
+.footer {
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 26px 0 34px;
+  color: var(--dim);
+  font-size: 13px;
+}
+
+/* ============================================================
+   14. АДАПТИВНОСТЬ
+   На мобильных все блоки выстраиваются в одну колонку.
+   ============================================================ */
+@media (max-width: 767px) {
+  .navbar__links { display: none; }
+  .burger { display: block; }
+  .mobile-menu { display: block; }
+
+  .grid { grid-template-columns: 1fr; gap: 16px; }
+  .cards { grid-template-columns: 1fr; }
+
+  .hero { padding: 46px 0 34px; }
+  .panel { padding: 20px; }
+  .toasts { left: 16px; right: 16px; bottom: 16px; }
+  .toast { max-width: none; }
+}
+
+/* ============================================================
+   15. УВАЖЕНИЕ К СИСТЕМНОЙ НАСТРОЙКЕ «МЕНЬШЕ ДВИЖЕНИЯ»
+   Функциональность сохраняется, движение убирается.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ==========================================================
+     БЛОК 6 — ВЕРХНЕЕ МЕНЮ
+     ========================================================== -->
+<header class="navbar">
+  <div class="container navbar__inner">
+    <a href="#" class="navbar__logo">NEON//KIT</a>
+
+    <nav>
+      <ul class="navbar__links">
+        <li><a class="navbar__link" href="#buttons">Кнопки</a></li>
+        <li><a class="navbar__link" href="#inputs">Поля</a></li>
+        <li><a class="navbar__link" href="#login">Форма</a></li>
+        <li><a class="navbar__link" href="#cards">Карточки</a></li>
+        <li><a class="navbar__link" href="#slider">Слайдер</a></li>
+      </ul>
+    </nav>
+
+    <button class="burger" id="burger" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobileMenu">
+      <span class="burger__line"></span>
+      <span class="burger__line"></span>
+      <span class="burger__line"></span>
+    </button>
+  </div>
+</header>
+
+<!-- Панель мобильного меню -->
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <a href="#buttons">Кнопки</a>
+  <a href="#inputs">Поля ввода</a>
+  <a href="#login">Форма входа</a>
+  <a href="#cards">Карточки</a>
+  <a href="#slider">Слайдер</a>
+</div>
+
+<main>
+  <!-- ========================================================
+       HERO + БЛОК 9 — ПРОГРЕСС-БАР
+       ======================================================== -->
+  <section class="container hero">
+    <p class="eyebrow">Витрина компонентов · v1.0</p>
+    <h1>Интерфейс, собранный <span>из неона</span></h1>
+    <p>Все базовые элементы в одном визуальном языке: состояния, анимации, поведение. Наводите, кликайте, вводите текст — здесь всё работает.</p>
+
+    <!-- Прогресс-бар заполняется автоматически за 3 секунды после старта страницы -->
+    <div class="progress">
+      <div class="progress__head">
+        <span class="eyebrow">Загрузка компонентов</span>
+        <span class="progress__value" id="progressValue">0%</span>
+      </div>
+      <div class="progress__track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Загрузка компонентов" id="progressBar">
+        <div class="progress__fill" id="progressFill"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       СЕТКА СЕКЦИЙ
+       ======================================================== -->
+  <div class="container">
+    <div class="grid">
+
+      <!-- ---------- БЛОК 1: КНОПКИ ---------- -->
+      <section class="panel" id="buttons">
+        <p class="eyebrow">01 / Buttons</p>
+        <h2 class="panel__title">Кнопки</h2>
+        <p class="panel__desc">Четыре типа и все состояния: наведение, нажатие, блокировка, загрузка.</p>
+
+        <div class="row">
+          <button class="btn btn--solid">Обычная</button>
+          <button class="btn btn--outline">Контурная</button>
+
+          <!-- Кнопка с иконкой -->
+          <button class="btn btn--outline">
+            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            С иконкой
+          </button>
+
+          <!-- «Загрузочная» кнопка: по клику уходит в загрузку на 2 секунды -->
+          <button class="btn btn--solid" id="loadBtn">Загрузить</button>
+
+          <button class="btn btn--ghost" disabled>Заблокирована</button>
+        </div>
+      </section>
+
+      <!-- ---------- БЛОК 2: ПОЛЯ ВВОДА ---------- -->
+      <section class="panel" id="inputs">
+        <p class="eyebrow">02 / Inputs</p>
+        <h2 class="panel__title">Поля ввода</h2>
+        <p class="panel__desc">Плавающий лейбл поднимается при фокусе и остаётся наверху, пока поле заполнено.</p>
+
+        <div class="stack">
+          <!-- Плавающий лейбл. placeholder=" " обязателен: на нём построено
+               правило :placeholder-shown, определяющее, пустое ли поле. -->
+          <div class="field">
+            <input type="text" class="input" id="demoName" placeholder=" ">
+            <label class="field__label" for="demoName">Имя пользователя</label>
+          </div>
+
+          <!-- Поле поиска с иконкой -->
+          <div class="field field--search">
+            <input type="search" class="input" placeholder="Поиск по компонентам" aria-label="Поиск по компонентам">
+            <svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- БЛОК 3: ФОРМА ВХОДА ---------- -->
+      <section class="panel" id="login">
+        <p class="eyebrow">03 / Forms</p>
+        <h2 class="panel__title">Форма входа</h2>
+        <p class="panel__desc">Пустые поля подсвечиваются ошибкой. При корректном вводе — анимация отправки и уведомление.</p>
+
+        <!-- novalidate отключает браузерные подсказки, чтобы не конфликтовать со своей проверкой -->
+        <form class="stack" id="loginForm" novalidate>
+          <div class="field">
+            <input type="email" class="input" id="loginEmail" placeholder=" " autocomplete="email">
+            <label class="field__label" for="loginEmail">E-mail</label>
+          </div>
+
+          <div class="field">
+            <input type="password" class="input" id="loginPass" placeholder=" " autocomplete="current-password">
+            <label class="field__label" for="loginPass">Пароль</label>
+          </div>
+
+          <label class="control">
+            <input type="checkbox" checked>
+            <span class="checkbox"></span>
+            <span class="control__text">Запомнить меня</span>
+          </label>
+
+          <button type="submit" class="btn btn--solid" id="loginBtn">Войти</button>
+        </form>
+      </section>
+
+      <!-- ---------- БЛОК 4: ПЕРЕКЛЮЧАТЕЛИ И ЧЕКБОКСЫ ---------- -->
+      <section class="panel" id="controls">
+        <p class="eyebrow">04 / Checkboxes</p>
+        <h2 class="panel__title">Переключатели и чекбоксы</h2>
+        <p class="panel__desc">Кастомная отрисовка поверх нативных элементов — работа с клавиатуры сохранена.</p>
+
+        <div class="stack">
+          <label class="control">
+            <input type="checkbox" checked>
+            <span class="toggle"></span>
+            <span class="control__text">Неоновая подсветка</span>
+          </label>
+
+          <label class="control">
+            <input type="checkbox">
+            <span class="toggle"></span>
+            <span class="control__text">Звуковые эффекты</span>
+          </label>
+
+          <label class="control">
+            <input type="checkbox" disabled>
+            <span class="toggle"></span>
+            <span class="control__text">Экспериментальный режим</span>
+          </label>
+
+          <label class="control">
+            <input type="checkbox" checked>
+            <span class="checkbox"></span>
+            <span class="control__text">Сохранять историю</span>
+          </label>
+
+          <label class="control">
+            <input type="checkbox">
+            <span class="checkbox"></span>
+            <span class="control__text">Присылать отчёты на почту</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- ---------- БЛОК 8: СЛАЙДЕР ---------- -->
+      <section class="panel" id="slider">
+        <p class="eyebrow">08 / Sliders</p>
+        <h2 class="panel__title">Слайдеры</h2>
+        <p class="panel__desc">Значение обновляется непрерывно, пока вы тянете ползунок.</p>
+
+        <div class="stack">
+          <div>
+            <div class="slider__head">
+              <span class="eyebrow">Яркость свечения</span>
+              <span class="slider__value" id="glowValue">65%</span>
+            </div>
+            <input type="range" class="range" id="glowRange" min="0" max="100" value="65" aria-label="Яркость свечения">
+          </div>
+
+          <div>
+            <div class="slider__head">
+              <span class="eyebrow">Объём памяти</span>
+              <span class="slider__value" id="memValue">450 MB</span>
+            </div>
+            <input type="range" class="range" id="memRange" min="0" max="2000" step="50" value="450" aria-label="Объём памяти">
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- БЛОК 7: МОДАЛЬНОЕ ОКНО ---------- -->
+      <section class="panel" id="popups">
+        <p class="eyebrow">07 / Popups</p>
+        <h2 class="panel__title">Модальное окно</h2>
+        <p class="panel__desc">Закрывается крестиком, кнопкой, клавишей Escape и кликом по затемнению.</p>
+
+        <div class="row">
+          <button class="btn btn--solid" id="openModal">
+            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>
+            </svg>
+            Открыть профиль
+          </button>
+        </div>
+      </section>
+
+      <!-- ---------- БЛОК 5: КАРТОЧКИ ТОВАРОВ ---------- -->
+      <section class="panel panel--wide" id="cards">
+        <p class="eyebrow">05 / Cards</p>
+        <h2 class="panel__title">Карточки товаров</h2>
+        <p class="panel__desc">При наведении карточка поднимается, изображение приближается и возвращает цвет.</p>
+
+        <div class="cards">
+          <article class="card">
+            <div class="card__media">
+              <img src="https://picsum.photos/300/200?random=1" alt="Механическая клавиатура на тёмном фоне" loading="lazy" width="300" height="200">
+            </div>
+            <div class="card__body">
+              <h3 class="card__title">Клавиатура NEON-87</h3>
+              <p class="card__text">Механика с линейными переключателями и сквозной подсветкой.</p>
+              <span class="card__price">12 400 ₽</span>
+              <button class="btn btn--outline">В корзину</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card__media">
+              <img src="https://picsum.photos/300/200?random=2" alt="Игровая мышь крупным планом" loading="lazy" width="300" height="200">
+            </div>
+            <div class="card__body">
+              <h3 class="card__title">Мышь PULSE X</h3>
+              <p class="card__text">Оптический сенсор 26 000 DPI, вес 58 грамм, без провода.</p>
+              <span class="card__price">6 900 ₽</span>
+              <button class="btn btn--outline">В корзину</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card__media">
+              <img src="https://picsum.photos/300/200?random=3" alt="Накладные наушники на столе" loading="lazy" width="300" height="200">
+            </div>
+            <div class="card__body">
+              <h3 class="card__title">Гарнитура ECHO Pro</h3>
+              <p class="card__text">Активное шумоподавление и 40 часов работы от одного заряда.</p>
+              <span class="card__price">18 250 ₽</span>
+              <button class="btn btn--outline">В корзину</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card__media">
+              <img src="https://picsum.photos/300/200?random=4" alt="Монитор с изогнутым экраном" loading="lazy" width="300" height="200">
+            </div>
+            <div class="card__body">
+              <h3 class="card__title">Монитор GRID 27</h3>
+              <p class="card__text">27 дюймов, 240 Гц, заводская калибровка цвета.</p>
+              <span class="card__price">54 000 ₽</span>
+              <button class="btn btn--outline">В корзину</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ---------- БЛОК 6: ДЕМОНСТРАЦИЯ МЕНЮ ---------- -->
+      <section class="panel panel--wide" id="menu">
+        <p class="eyebrow">06 / Menu</p>
+        <h2 class="panel__title">Меню с подчёркиванием</h2>
+        <p class="panel__desc">Тот же компонент, что и в верхней панели: линия раскрывается слева направо. На мобильных верхнее меню сворачивается в бургер.</p>
+
+        <nav>
+          <ul class="navbar__links" style="flex-wrap: wrap;">
+            <li><a class="navbar__link" href="#menu">Главная</a></li>
+            <li><a class="navbar__link" href="#menu">Каталог</a></li>
+            <li><a class="navbar__link" href="#menu">Документация</a></li>
+            <li><a class="navbar__link" href="#menu">Тарифы</a></li>
+            <li><a class="navbar__link" href="#menu">Контакты</a></li>
+          </ul>
+        </nav>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">NEON//KIT — демонстрационная витрина компонентов. Данные никуда не отправляются.</div>
+</footer>
+
+<!-- ==========================================================
+     МОДАЛЬНОЕ ОКНО
+     ========================================================== -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalName" hidden>
+  <div class="modal">
+    <button class="modal__close" id="closeModal" aria-label="Закрыть окно">&times;</button>
+
+    <img class="modal__avatar" src="https://picsum.photos/300/200?random=9" alt="Фотография профиля">
+    <h3 class="modal__name" id="modalName">Кира Волкова</h3>
+    <p class="modal__role">Frontend-инженер · онлайн</p>
+
+    <div class="modal__stats">
+      <div class="modal__stat"><b>142</b><span>Проекта</span></div>
+      <div class="modal__stat"><b>8.7k</b><span>Коммитов</span></div>
+      <div class="modal__stat"><b>4.9</b><span>Рейтинг</span></div>
+    </div>
+
+    <div class="modal__actions">
+      <button class="btn btn--solid" id="modalFollow">Подписаться</button>
+      <button class="btn btn--ghost" id="modalCancel">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Контейнер для всплывающих уведомлений -->
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   JS. Весь код обёрнут в IIFE, чтобы не засорять глобальную
+   область видимости.
+   ============================================================ */
+(function () {
+  'use strict';
+
+  /* ---------- Утилиты ---------- */
+  var $ = function (sel) { return document.querySelector(sel); };
+
+  /* ============================================================
+     1. TOAST-УВЕДОМЛЕНИЯ
+     Создаёт элемент, показывает его с анимацией и удаляет
+     из DOM только после завершения анимации ухода.
+     ============================================================ */
+  var toastsBox = $('#toasts');
+
+  function showToast(message, type) {
+    var toast = document.createElement('div');
+    toast.className = 'toast' + (type === 'error' ? ' toast--error' : '');
+
+    var dot = document.createElement('span');
+    dot.className = 'toast__dot';
+
+    var text = document.createElement('span');
+    text.textContent = message;
+
+    toast.appendChild(dot);
+    toast.appendChild(text);
+    toastsBox.appendChild(toast);
+
+    // Кадр задержки нужен, чтобы браузер зафиксировал начальное
+    // состояние и отработал переход, а не показал элемент сразу.
+    requestAnimationFrame(function () {
+      toast.classList.add('is-visible');
+    });
+
+    setTimeout(function () {
+      toast.classList.remove('is-visible');
+      toast.addEventListener('transitionend', function () {
+        toast.remove();
+      }, { once: true });
+    }, 3200);
+  }
+
+  /* ============================================================
+     2. ПРОГРЕСС-БАР
+     Заполняется от 0 до 100% за 3 секунды после старта страницы.
+     Используется requestAnimationFrame: анимация синхронизирована
+     с частотой обновления экрана и не «плывёт» при нагрузке.
+     ============================================================ */
+  var DURATION = 3000;
+  var fill  = $('#progressFill');
+  var label = $('#progressValue');
+  var track = $('#progressBar');
+
+  function runProgress() {
+    var start = performance.now();
+
+    function step(now) {
+      var progress = Math.min((now - start) / DURATION, 1);
+      // Плавное замедление к концу — движение выглядит естественнее линейного
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var percent = Math.round(eased * 100);
+
+      fill.style.transform = 'scaleX(' + eased + ')';
+      label.textContent = percent + '%';
+      track.setAttribute('aria-valuenow', percent);
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        fill.classList.add('is-done');   // короткая вспышка по завершении
+        label.textContent = 'Готово';
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ============================================================
+     3. СЛАЙДЕРЫ
+     Событие input срабатывает непрерывно во время перетаскивания
+     (в отличие от change, который ждёт отпускания ползунка).
+     ============================================================ */
+  function bindRange(rangeId, valueId, format) {
+    var range = $(rangeId);
+    var out   = $(valueId);
+
+    function update() {
+      var min = Number(range.min) || 0;
+      var max = Number(range.max) || 100;
+      var val = Number(range.value);
+
+      // Доля заполнения передаётся в CSS-переменную и красит дорожку
+      var percent = ((val - min) / (max - min)) * 100;
+      range.style.setProperty('--fill', percent + '%');
+
+      out.textContent = format(val);
+    }
+
+    range.addEventListener('input', update);
+    update(); // начальная синхронизация при загрузке
+  }
+
+  bindRange('#glowRange', '#glowValue', function (v) { return v + '%'; });
+  bindRange('#memRange',  '#memValue',  function (v) { return v + ' MB'; });
+
+  /* ============================================================
+     4. МОДАЛЬНОЕ ОКНО
+     ============================================================ */
+  var overlay    = $('#overlay');
+  var openBtn    = $('#openModal');
+  var lastFocused = null;      // сюда вернём фокус после закрытия
+  var overlayMouseDown = false; // защита от закрытия при выделении текста
+
+  function openModal() {
+    lastFocused = document.activeElement;
+    overlay.hidden = false;
+
+    // Кадр задержки — иначе переход не проиграется после снятия hidden
+    requestAnimationFrame(function () {
+      overlay.classList.add('is-open');
+    });
+
+    // Блокируем прокрутку фона и компенсируем ширину скроллбара,
+    // чтобы контент не дёрнулся вбок.
+    var scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = scrollbar + 'px';
+
+    $('#closeModal').focus();
+  }
+
+  function closeModal() {
+    overlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+
+    // Прячем окно только после завершения анимации ухода
+    overlay.addEventListener('transitionend', function handler(e) {
+      if (e.target === overlay) {
+        overlay.hidden = true;
+        overlay.removeEventListener('transitionend', handler);
+      }
+    });
+
+    if (lastFocused) lastFocused.focus();
+  }
+
+  openBtn.addEventListener('click', openModal);
+  $('#closeModal').addEventListener('click', closeModal);
+  $('#modalCancel').addEventListener('click', closeModal);
+
+  $('#modalFollow').addEventListener('click', function () {
+    closeModal();
+    showToast('Вы подписались на обновления профиля');
+  });
+
+  // Закрытие кликом по затемнению. Проверяем и нажатие, и отпускание:
+  // иначе выделение текста внутри окна с отпусканием мыши снаружи
+  // закрыло бы модалку.
+  overlay.addEventListener('mousedown', function (e) {
+    overlayMouseDown = (e.target === overlay);
+  });
+  overlay.addEventListener('mouseup', function (e) {
+    if (overlayMouseDown && e.target === overlay) closeModal();
+    overlayMouseDown = false;
+  });
+
+  /* ============================================================
+     5. МОБИЛЬНОЕ МЕНЮ
+     ============================================================ */
+  var burger = $('#burger');
+  var menu   = $('#mobileMenu');
+
+  function setMenu(open) {
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+
+    if (open) {
+      menu.hidden = false;
+      requestAnimationFrame(function () { menu.classList.add('is-open'); });
+    } else {
+      menu.classList.remove('is-open');
+      setTimeout(function () { menu.hidden = true; }, 380);
+    }
+  }
+
+  burger.addEventListener('click', function () {
+    setMenu(burger.getAttribute('aria-expanded') !== 'true');
+  });
+
+  // Клик по пункту закрывает меню
+  menu.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') setMenu(false);
+  });
+
+  // При расширении окна до десктопа меню не должно остаться висеть
+  window.addEventListener('resize', function () {
+    if (window.innerWidth >= 768 && burger.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+    }
+  });
+
+  /* ============================================================
+     6. ESCAPE — общий обработчик
+     Приоритет у модального окна: если открыты оба, закрываем его.
+     ============================================================ */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+
+    if (overlay.classList.contains('is-open')) {
+      closeModal();
+    } else if (burger.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+    }
+  });
+
+  /* ============================================================
+     7. «ЗАГРУЗОЧНАЯ» КНОПКА
+     На время загрузки блокируется, чтобы повторный клик
+     не запускал процесс заново.
+     ============================================================ */
+  var loadBtn = $('#loadBtn');
+
+  loadBtn.addEventListener('click', function () {
+    var original = loadBtn.innerHTML;
+    loadBtn.disabled = true;
+    loadBtn.innerHTML = '<span class="spinner"></span> Загрузка';
+
+    setTimeout(function () {
+      loadBtn.disabled = false;
+      loadBtn.innerHTML = original;
+      showToast('Данные загружены');
+    }, 2000);
+  });
+
+  /* ============================================================
+     8. ФОРМА ВХОДА
+     Проверка выполняется на клиенте, данные никуда не уходят.
+     ============================================================ */
+  var form     = $('#loginForm');
+  var email    = $('#loginEmail');
+  var password = $('#loginPass');
+  var loginBtn = $('#loginBtn');
+
+  // Простая проверка структуры адреса: есть имя, собака, домен и зона
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function markInvalid(input) {
+    input.classList.add('is-invalid');
+    input.setAttribute('aria-invalid', 'true');
+  }
+
+  function clearInvalid(input) {
+    input.classList.remove('is-invalid');
+    input.removeAttribute('aria-invalid');
+  }
+
+  // Как только человек начал исправлять поле — снимаем подсветку ошибки
+  [email, password].forEach(function (input) {
+    input.addEventListener('input', function () { clearInvalid(input); });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault(); // отправки на сервер нет — это демонстрация
+
+    var emailValue = email.value.trim();
+    var passValue  = password.value;
+    var firstError = null;
+
+    clearInvalid(email);
+    clearInvalid(password);
+
+    // Пустые поля
+    if (!emailValue) {
+      markInvalid(email);
+      firstError = firstError || email;
+      showToast('Введите e-mail', 'error');
+    } else if (!EMAIL_RE.test(emailValue)) {
+      markInvalid(email);
+      firstError = firstError || email;
+      showToast('Адрес должен быть в формате name@example.com', 'error');
+    }
+
+    if (!passValue) {
+      markInvalid(password);
+      firstError = firstError || password;
+      if (emailValue && EMAIL_RE.test(emailValue)) showToast('Введите пароль', 'error');
+    } else if (passValue.length < 8) {
+      markInvalid(password);
+      firstError = firstError || password;
+      if (emailValue && EMAIL_RE.test(emailValue)) showToast('Пароль — минимум 8 символов', 'error');
+    }
+
+    if (firstError) {
+      firstError.focus();
+      return;
+    }
+
+    // Анимация отправки: кнопка уходит в загрузку на 1.5 секунды
+    var original = loginBtn.textContent;
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<span class="spinner"></span> Проверяем';
+
+    setTimeout(function () {
+      loginBtn.disabled = false;
+      loginBtn.textContent = original;
+      form.reset();
+      showToast('Вход выполнен. Добро пожаловать!');
+    }, 1500);
+  });
+
+  /* ============================================================
+     9. СТАРТ
+     Прогресс-бар запускается после отрисовки страницы.
+     ============================================================ */
+  window.addEventListener('load', runProgress);
+
+})();
+</script>
+
+</body>
+</html>

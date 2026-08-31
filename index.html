@@ -551,7 +551,323 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
 }
 
 /* ============================================================
-   7. СЕТКА СЕКЦИЙ (CSS Grid)
+   7. КАЛЬКУЛЯТОР МАКСИМАЛЬНОЙ СКИДКИ
+   Слева ввод, справа результат. На мобильных — одна колонка.
+   ============================================================ */
+.calc-section { padding: 10px 0 60px; }
+
+.calc__head { margin-bottom: 22px; text-align: center; }
+.calc__head h2 { font-size: 24px; font-weight: 700; margin-top: 6px; }
+.calc__head > p {
+  color: var(--muted);
+  max-width: 560px;
+  margin: 10px auto 0;
+}
+
+.calc {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* --- Левая колонка: ввод --- */
+.calc__form { display: flex; flex-direction: column; gap: 16px; }
+
+.calc__field { display: flex; flex-direction: column; gap: 7px; }
+.calc__field label { cursor: pointer; }
+
+.calc__input-wrap { position: relative; }
+
+/* Переопределяем отступы базового поля: здесь лейбл стоит сверху,
+   а не плавает внутри, поэтому текст центрируется по высоте. */
+.calc__input {
+  padding: 0 46px 0 14px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+/* Единица измерения в правой части поля */
+.calc__unit {
+  position: absolute;
+  right: 14px; top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--dim);
+  pointer-events: none;
+}
+
+.calc__error {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--danger);
+}
+
+.calc__hint {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dim);
+}
+
+/* --- Правая колонка: результат --- */
+.calc__results { display: flex; flex-direction: column; gap: 12px; }
+
+.calc__tile {
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+/* Главный показатель выделен неоном */
+.calc__tile--accent {
+  border-color: var(--border-strong);
+  background: var(--neon-soft);
+  box-shadow: var(--glow-sm);
+}
+.calc__value {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.calc__tile--accent .calc__value {
+  color: var(--neon);
+  text-shadow: var(--glow-sm);
+}
+.calc__sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* Пока расчёта не было — значения приглушены */
+.calc__results.is-empty .calc__value { color: var(--dim); text-shadow: none; }
+.calc__results.is-empty .calc__tile--accent {
+  background: var(--surface-2);
+  border-color: rgba(255, 255, 255, .06);
+  box-shadow: none;
+}
+
+/* Строка состояния: нейтральная, успешная или предупреждающая */
+.calc__status {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: auto;
+  padding: 13px 15px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, .07);
+  background: var(--surface-2);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.calc__status b { display: block; color: var(--text); margin-bottom: 2px; }
+
+.calc__status--ok {
+  border-color: var(--border-strong);
+  background: var(--neon-soft);
+  color: var(--text);
+}
+.calc__status--ok b { color: var(--neon); }
+
+.calc__status--warn {
+  border-color: var(--danger);
+  background: rgba(255, 59, 92, .10);
+  color: #ffd7de;
+}
+.calc__status--warn b { color: var(--danger); }
+
+.calc__status svg { width: 17px; height: 17px; flex: 0 0 auto; margin-top: 1px; }
+
+/* Кнопка копирования значения в буфер обмена */
+.calc__tile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.calc__copy {
+  width: 28px; height: 28px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--dim);
+  cursor: pointer;
+  transition: color var(--t-instant), border-color var(--t-instant), background var(--t-instant);
+}
+.calc__copy:hover { color: var(--neon); border-color: var(--border); background: var(--neon-soft); }
+.calc__copy svg { width: 15px; height: 15px; }
+.calc__results.is-empty .calc__copy { visibility: hidden; }
+
+/* --- Примерка конкретной скидки --- */
+.calc__try {
+  grid-column: 1 / -1;          /* растягиваем на обе колонки */
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  padding-top: 22px;
+}
+.calc__try-note {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  color: var(--dim);
+}
+/* Значения меняют цвет, когда скидка выходит за допустимый предел */
+.calc__try.is-over .slider__value { color: var(--danger); text-shadow: none; }
+.calc__try.is-over .calc__try-out b { color: var(--danger); }
+
+.calc__try-out {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+.calc__try-out > div {
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: var(--radius);
+  padding: 13px 15px;
+}
+.calc__try-out b {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--t-fast);
+}
+
+/* --- Разбор расчёта --- */
+.calc__explain {
+  grid-column: 1 / -1;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  padding-top: 20px;
+}
+.calc__explain summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--neon);
+}
+.calc__explain summary::-webkit-details-marker { display: none; }
+/* Треугольник-указатель, поворачивающийся при раскрытии */
+.calc__explain summary::before {
+  content: '';
+  width: 0; height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform var(--t-fast);
+}
+.calc__explain[open] summary::before { transform: rotate(90deg); }
+
+.calc__steps {
+  margin: 16px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+.calc__steps li { margin-bottom: 12px; }
+.calc__steps li::marker { color: var(--neon); font-family: var(--font-mono); }
+.calc__steps b { color: var(--text); font-weight: 700; }
+/* Подстановка чисел в формулу — моноширинным, чтобы читалась как расчёт */
+.calc__steps code {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 3px 8px;
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--neon);
+  white-space: nowrap;
+}
+/* Вывод простыми словами */
+.calc__plain {
+  margin: 14px 0 0;
+  padding: 13px 15px;
+  background: var(--neon-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+/* --- Скрипты для клиента --- */
+.calc__scripts {
+  grid-column: 1 / -1;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  padding-top: 22px;
+}
+.calc__scripts-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.calc__scripts-note { font-size: 12.5px; color: var(--dim); }
+
+.calc__scripts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.script {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: var(--radius);
+  padding: 16px;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.script:hover { border-color: var(--border-strong); box-shadow: var(--glow-sm); }
+.script__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--neon);
+  margin-bottom: 4px;
+}
+.script__goal { font-size: 12px; color: var(--dim); margin: 0 0 12px; }
+.script__text {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text);
+  white-space: pre-line;   /* сохраняем переносы строк в шаблоне */
+  flex: 1;
+}
+.script .btn { width: 100%; min-height: 38px; font-size: 12px; }
+
+/* ============================================================
+   8. СЕТКА СЕКЦИЙ (CSS Grid)
    auto-fit + minmax обеспечивает автоматический переход
    в одну колонку на узких экранах.
    ============================================================ */
@@ -900,8 +1216,11 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
   height: 22px;
   background: transparent;
   cursor: pointer;
-  /* --fill обновляется из JS и задаёт долю заполненной части дорожки */
+  /* --fill обновляется из JS и задаёт долю заполненной части дорожки,
+     --range-color позволяет перекрасить дорожку в красный, когда
+     значение выходит за допустимый предел */
   --fill: 0%;
+  --range-color: var(--neon);
 }
 .range:focus { outline: none; }
 .range:focus-visible { outline: 2px solid var(--neon); outline-offset: 6px; border-radius: 4px; }
@@ -911,7 +1230,7 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
   height: 5px;
   border-radius: var(--radius-full);
   background: linear-gradient(to right,
-    var(--neon) 0%, var(--neon) var(--fill),
+    var(--range-color) 0%, var(--range-color) var(--fill),
     #262626 var(--fill), #262626 100%);
 }
 /* Дорожка — Firefox */
@@ -923,8 +1242,11 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
 .range::-moz-range-progress {
   height: 5px;
   border-radius: var(--radius-full);
-  background: var(--neon);
+  background: var(--range-color);
 }
+
+/* Превышение допустимой скидки — дорожка краснеет */
+.calc__try.is-over .range { --range-color: var(--danger); }
 
 /* Ползунок — WebKit */
 .range::-webkit-slider-thumb {
@@ -1105,6 +1427,13 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
   .arrow { width: 40px; height: 40px; }
   .carousel__dots { margin-top: 18px; }
 
+  .calc { grid-template-columns: 1fr; gap: 22px; padding: 22px 18px; }
+  .calc__value { font-size: 23px; }
+  .calc__try-out { grid-template-columns: 1fr; gap: 10px; }
+  .calc__try-out b { font-size: 17px; }
+  .calc__scripts-grid { grid-template-columns: 1fr; }
+  .calc__steps code { white-space: normal; }
+
   .grid { grid-template-columns: 1fr; gap: 16px; }
   .cards { grid-template-columns: 1fr; }
 
@@ -1146,6 +1475,7 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
         <li><a class="navbar__link" href="#inputs">Поля</a></li>
         <li><a class="navbar__link" href="#login">Форма</a></li>
         <li><a class="navbar__link" href="#video">Видео</a></li>
+        <li><a class="navbar__link" href="#calc">Скидка</a></li>
         <li><a class="navbar__link" href="#cards">Карточки</a></li>
         <li><a class="navbar__link" href="#slider">Слайдер</a></li>
       </ul>
@@ -1165,6 +1495,7 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
   <a href="#inputs">Поля ввода</a>
   <a href="#login">Форма входа</a>
   <a href="#video">Видео</a>
+  <a href="#calc">Калькулятор скидки</a>
   <a href="#cards">Карточки</a>
   <a href="#slider">Слайдер</a>
 </div>
@@ -1196,7 +1527,7 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
 
       <!-- Правая колонка: изображение -->
       <div class="hero__media">
-        <img src="hero.png" alt="Витрина неоновых компонентов интерфейса">
+        <img src="https://imagetourl.cloud/t7otq0l7dxz5.png" alt="ChatGPT Image 28 авг. 2026 г., 13_44_59">
       </div>
 
     </div>
@@ -1324,6 +1655,148 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
         allowfullscreen
         loading="lazy"></iframe>
     </div>
+  </section>
+
+  <!-- ========================================================
+       КАЛЬКУЛЯТОР МАКСИМАЛЬНОЙ СКИДКИ
+       ======================================================== -->
+  <section class="container calc-section" id="calc">
+    <div class="calc__head">
+      <p class="eyebrow">Инструмент</p>
+      <h2>Калькулятор максимальной скидки</h2>
+      <p>Введите цену, себестоимость и минимально допустимую маржу. Калькулятор покажет, ниже какой цены опускаться нельзя и какую скидку вы вправе дать клиенту.</p>
+    </div>
+
+    <form class="calc" id="calcForm" novalidate>
+
+      <!-- Ввод данных -->
+      <div class="calc__form">
+
+        <div class="calc__field">
+          <label class="eyebrow" for="calcPrice">Базовая цена</label>
+          <div class="calc__input-wrap">
+            <input type="text" inputmode="decimal" class="input calc__input" id="calcPrice" placeholder="0" autocomplete="off">
+            <span class="calc__unit">₽</span>
+          </div>
+          <p class="calc__error" id="errPrice" hidden></p>
+        </div>
+
+        <div class="calc__field">
+          <label class="eyebrow" for="calcCost">Себестоимость</label>
+          <div class="calc__input-wrap">
+            <input type="text" inputmode="decimal" class="input calc__input" id="calcCost" placeholder="0" autocomplete="off">
+            <span class="calc__unit">₽</span>
+          </div>
+          <p class="calc__error" id="errCost" hidden></p>
+        </div>
+
+        <div class="calc__field">
+          <label class="eyebrow" for="calcMargin">Минимальная маржа</label>
+          <div class="calc__input-wrap">
+            <input type="text" inputmode="decimal" class="input calc__input" id="calcMargin" placeholder="0" autocomplete="off">
+            <span class="calc__unit">%</span>
+          </div>
+          <p class="calc__error" id="errMargin" hidden></p>
+        </div>
+
+        <button type="submit" class="btn btn--solid" id="calcBtn">Рассчитать</button>
+
+        <p class="calc__hint">Маржа считается от цены продажи: (цена − себестоимость) ÷ цена × 100.</p>
+      </div>
+
+      <!-- Результат -->
+      <div class="calc__results is-empty" id="calcResults" aria-live="polite">
+
+        <div class="calc__tile">
+          <div class="calc__tile-head">
+            <span class="eyebrow">Минимально допустимая цена</span>
+            <button type="button" class="calc__copy" id="copyMinPrice" aria-label="Скопировать минимальную цену">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>
+              </svg>
+            </button>
+          </div>
+          <b class="calc__value" id="resMinPrice">—</b>
+          <span class="calc__sub" id="resBaseMargin"></span>
+        </div>
+
+        <div class="calc__tile calc__tile--accent">
+          <span class="eyebrow">Максимальная скидка</span>
+          <b class="calc__value" id="resDiscount">—</b>
+          <span class="calc__sub" id="resDiscountRub"></span>
+        </div>
+
+        <div class="calc__status" id="calcStatus">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.4"/>
+          </svg>
+          <span id="calcStatusText">Заполните три поля слева и нажмите «Рассчитать».</span>
+        </div>
+
+      </div>
+
+      <!-- Примерка конкретной скидки: появляется после первого расчёта -->
+      <div class="calc__try" id="calcTry" hidden>
+        <div class="slider__head">
+          <span class="eyebrow">Примерьте скидку</span>
+          <span class="slider__value" id="tryPct">0,0 %</span>
+        </div>
+        <input type="range" class="range" id="tryRange" min="0" max="100" step="0.5" value="0" aria-label="Размер скидки в процентах">
+
+        <div class="calc__try-out">
+          <div>
+            <span class="eyebrow">Цена со скидкой</span>
+            <b id="tryPrice">—</b>
+          </div>
+          <div>
+            <span class="eyebrow">Маржа при этой цене</span>
+            <b id="tryMargin">—</b>
+          </div>
+          <div>
+            <span class="eyebrow">Прибыль со сделки</span>
+            <b id="tryProfit">—</b>
+          </div>
+        </div>
+
+        <p class="calc__try-note" id="tryNote" style="margin: 14px 0 0;"></p>
+      </div>
+
+      <!-- Разбор расчёта: те же формулы, но с подставленными числами -->
+      <details class="calc__explain" id="calcExplain" open>
+        <summary>Как получились эти цифры</summary>
+
+        <ol class="calc__steps">
+          <li>
+            <b>Маржа — это доля прибыли в цене продажи</b>, а не наценка на себестоимость.
+            Если маржа <span id="expMargin">—</span>, значит из каждых 100 ₽, которые платит клиент,
+            <span id="expMarginRub">—</span> должно остаться прибылью, а остальное уходит на себестоимость.
+          </li>
+          <li>
+            <b>Минимальная цена.</b> Себестоимость — это та доля цены, которая остаётся после вычета маржи.
+            Делим себестоимость на эту долю:
+            <code id="expFormula1">—</code>
+            Ниже этой суммы продавать нельзя.
+          </li>
+          <li>
+            <b>Максимальная скидка.</b> Считаем, насколько базовая цена выше минимальной,
+            и переводим разницу в проценты от базовой:
+            <code id="expFormula2">—</code>
+          </li>
+        </ol>
+
+        <p class="calc__plain" id="expPlain">—</p>
+      </details>
+
+      <!-- Готовые сообщения клиенту под выбранную скидку -->
+      <div class="calc__scripts" id="calcScripts" hidden>
+        <div class="calc__scripts-head">
+          <span class="eyebrow">Скрипты для клиента</span>
+          <span class="calc__scripts-note" id="scriptsNote"></span>
+        </div>
+        <div class="calc__scripts-grid" id="scriptsGrid"></div>
+      </div>
+
+    </form>
   </section>
 
   <!-- ========================================================
@@ -2017,7 +2490,440 @@ h1, h2, h3 { margin: 0; line-height: 1.15; }
   });
 
   /* ============================================================
-     9. СТАРТ
+     10. КАЛЬКУЛЯТОР МАКСИМАЛЬНОЙ СКИДКИ
+
+     Маржа считается от цены продажи (маржинальность):
+        маржа% = (цена − себестоимость) / цена × 100
+
+     Отсюда минимально допустимая цена:
+        Pmin = себестоимость / (1 − маржа% / 100)
+
+     И максимальная скидка от базовой цены:
+        скидка% = (цена − Pmin) / цена × 100
+
+     Округление всегда в безопасную сторону: минимальная цена вверх,
+     максимальная скидка вниз. Иначе сотрудник, дав ровно показанную
+     скидку, уйдёт на доли процента ниже порога.
+     ============================================================ */
+  var calcForm   = $('#calcForm');
+  var fPrice     = $('#calcPrice');
+  var fCost      = $('#calcCost');
+  var fMargin    = $('#calcMargin');
+  var results    = $('#calcResults');
+  var statusBox  = $('#calcStatus');
+  var statusText = $('#calcStatusText');
+  var calculated = false;   // после первого расчёта пересчитываем на лету
+
+  // Состояние последнего успешного расчёта — нужно блоку примерки
+  var state = { price: 0, cost: 0, margin: 0, minPrice: 0, maxPct: 0 };
+
+  /* ---------- Разбор и форматирование чисел ---------- */
+
+  // Принимаем и точку, и запятую, и пробелы в разрядах: «1 200,50» → 1200.5
+  function parseNumber(raw) {
+    var clean = String(raw).replace(/\s|\u00A0/g, '').replace(',', '.');
+    if (clean === '') return NaN;
+    return Number(clean);
+  }
+
+  function formatMoney(n) {
+    return n.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₽';
+  }
+
+  function formatPercent(n) {
+    return n.toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
+  }
+
+  /* ---------- Разделители разрядов прямо в поле ввода ----------
+     Форматируем на лету и возвращаем курсор на место: без этого
+     он прыгал бы в конец строки при каждой правке в середине. */
+
+  function groupDigits(value, useGrouping) {
+    // Оставляем только цифры и один разделитель дробной части
+    var clean = value.replace(/[^\d.,]/g, '').replace(/\./g, ',');
+    var parts = clean.split(',');
+    var intPart = parts[0].replace(/^0+(?=\d)/, '');   // убираем ведущие нули
+
+    var out = useGrouping
+      ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0')  // неразрывный пробел
+      : intPart;
+
+    if (parts.length > 1) {
+      out += ',' + parts.slice(1).join('').slice(0, 2);   // не больше двух знаков после запятой
+    }
+    return out;
+  }
+
+  function attachFormatting(input, useGrouping) {
+    input.addEventListener('input', function () {
+      var caret = input.selectionStart;
+      var raw   = input.value;
+
+      // Считаем значащие символы слева от курсора, чтобы вернуть его туда же
+      var significant = raw.slice(0, caret).replace(/[^\d,]/g, '').length;
+      var formatted = groupDigits(raw, useGrouping);
+      input.value = formatted;
+
+      var pos = 0, seen = 0;
+      while (pos < formatted.length && seen < significant) {
+        if (/[\d,]/.test(formatted[pos])) seen++;
+        pos++;
+      }
+      input.setSelectionRange(pos, pos);
+    });
+  }
+
+  attachFormatting(fPrice, true);
+  attachFormatting(fCost, true);
+  attachFormatting(fMargin, false);   // проценты в разряды не разбиваем
+
+  /* ---------- Вывод состояний ---------- */
+
+  function setFieldError(input, errorId, message) {
+    var box = $('#' + errorId);
+    if (message) {
+      input.classList.add('is-invalid');
+      input.setAttribute('aria-invalid', 'true');
+      box.textContent = message;
+      box.hidden = false;
+    } else {
+      input.classList.remove('is-invalid');
+      input.removeAttribute('aria-invalid');
+      box.hidden = true;
+    }
+  }
+
+  function setStatus(kind, title, text) {
+    statusBox.classList.remove('calc__status--ok', 'calc__status--warn');
+    if (kind) statusBox.classList.add('calc__status--' + kind);
+
+    statusText.innerHTML = '';
+    if (title) {
+      var b = document.createElement('b');
+      b.textContent = title;
+      statusText.appendChild(b);
+    }
+    statusText.appendChild(document.createTextNode(text));
+  }
+
+  function resetResults(message) {
+    results.classList.add('is-empty');
+    $('#resMinPrice').textContent = '—';
+    $('#resDiscount').textContent = '—';
+    $('#resDiscountRub').textContent = '';
+    $('#resBaseMargin').textContent = '';
+    $('#calcTry').hidden = true;
+    $('#calcScripts').hidden = true;
+    setStatus(null, '', message);
+  }
+
+  /* ---------- Расчёт ---------- */
+
+  function calculate() {
+    var price  = parseNumber(fPrice.value);
+    var cost   = parseNumber(fCost.value);
+    var margin = parseNumber(fMargin.value);
+    var ok = true;
+
+    if (isNaN(price)) {
+      setFieldError(fPrice, 'errPrice', 'Укажите базовую цену'); ok = false;
+    } else if (price <= 0) {
+      setFieldError(fPrice, 'errPrice', 'Цена должна быть больше нуля'); ok = false;
+    } else {
+      setFieldError(fPrice, 'errPrice', '');
+    }
+
+    if (isNaN(cost)) {
+      setFieldError(fCost, 'errCost', 'Укажите себестоимость'); ok = false;
+    } else {
+      setFieldError(fCost, 'errCost', '');
+    }
+
+    if (isNaN(margin)) {
+      setFieldError(fMargin, 'errMargin', 'Укажите минимальную маржу'); ok = false;
+    } else if (margin >= 100) {
+      // При 100% формула делит на ноль: цены с такой маржой не существует
+      setFieldError(fMargin, 'errMargin', 'Маржа должна быть меньше 100 %'); ok = false;
+    } else {
+      setFieldError(fMargin, 'errMargin', '');
+    }
+
+    if (!ok) {
+      resetResults('Проверьте выделенные поля.');
+      return false;
+    }
+
+    // Минимальную цену округляем вверх до копейки — в пользу маржи
+    var minPrice = Math.ceil((cost / (1 - margin / 100)) * 100) / 100;
+    var maxPct   = Math.floor(((price - minPrice) / price * 100) * 10) / 10;  // вниз до 0,1 %
+    var maxRub   = Math.floor(price * (maxPct / 100) * 100) / 100;
+    var baseMargin = (price - cost) / price * 100;
+
+    // Сохраняем для блока примерки
+    state = { price: price, cost: cost, margin: margin, minPrice: minPrice, maxPct: Math.max(maxPct, 0) };
+
+    results.classList.remove('is-empty');
+    $('#resMinPrice').textContent = formatMoney(minPrice);
+    $('#resBaseMargin').textContent = 'Маржа базовой цены: ' + formatPercent(baseMargin);
+
+    if (maxPct < 0) {
+      $('#resDiscount').textContent = '0,0 %';
+      $('#resDiscountRub').textContent = 'Не хватает ' + formatMoney(minPrice - price) + ' до минимальной цены';
+      setStatus('warn', 'Скидка невозможна',
+        'Базовая цена уже ниже минимально допустимой. Продажа по текущей цене не обеспечивает маржу ' +
+        formatPercent(margin) + '. Согласуйте цену с руководителем.');
+    } else if (maxPct < 1) {
+      $('#resDiscount').textContent = formatPercent(maxPct);
+      $('#resDiscountRub').textContent = 'Это ' + formatMoney(maxRub) + ' от базовой цены';
+      setStatus('warn', 'Запас почти исчерпан',
+        'Базовая цена практически равна минимальной. Любая заметная скидка уведёт сделку ниже маржи ' +
+        formatPercent(margin) + '.');
+    } else {
+      $('#resDiscount').textContent = formatPercent(maxPct);
+      $('#resDiscountRub').textContent = 'Это ' + formatMoney(maxRub) + ' от базовой цены';
+      setStatus('ok', 'Скидку давать можно',
+        'При цене не ниже ' + formatMoney(minPrice) + ' маржа останется на уровне ' +
+        formatPercent(margin) + ' и выше.');
+    }
+
+    fillExplanation();
+    setupTry();
+    return true;
+  }
+
+  calcForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (calculate()) calculated = true;
+  });
+
+  // После первого расчёта результат обновляется сразу при правке полей —
+  // иначе на экране остались бы цифры от старых значений.
+  [fPrice, fCost, fMargin].forEach(function (input) {
+    input.addEventListener('input', function () {
+      if (calculated) calculate();
+    });
+  });
+
+  /* ---------- Копирование минимальной цены ---------- */
+
+  // Общая функция копирования: используется и ценой, и скриптами
+  function copyText(text, okMessage) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast(okMessage);
+      }).catch(function () {
+        showToast('Не удалось скопировать — выделите текст вручную', 'error');
+      });
+    } else {
+      showToast('Копирование недоступно в этом браузере', 'error');
+    }
+  }
+
+  $('#copyMinPrice').addEventListener('click', function () {
+    if (results.classList.contains('is-empty')) return;
+
+    // В буфер кладём чистое число без валюты и пробелов — его удобно
+    // вставить в счёт или CRM
+    var plain = state.minPrice.toFixed(2).replace('.', ',');
+    copyText(plain, 'Минимальная цена скопирована: ' + plain);
+  });
+
+  /* ---------- Примерка конкретной скидки ---------- */
+
+  var tryBox   = $('#calcTry');
+  var tryRange = $('#tryRange');
+
+  function setupTry() {
+    // Верхнюю границу ставим с запасом над пределом, чтобы было видно,
+    // что происходит при его превышении
+    var max = Math.min(100, Math.max(5, Math.ceil(state.maxPct) + 15));
+    tryRange.max = max;
+
+    if (Number(tryRange.value) > max) tryRange.value = max;
+    tryBox.hidden = false;
+    updateTry();
+  }
+
+  function updateTry() {
+    var pct = Number(tryRange.value);
+
+    // Заполнение дорожки
+    tryRange.style.setProperty('--fill', (pct / Number(tryRange.max)) * 100 + '%');
+
+    var finalPrice = state.price * (1 - pct / 100);
+    var profit     = finalPrice - state.cost;
+    var marginNow  = finalPrice > 0 ? (profit / finalPrice) * 100 : 0;
+    var over       = pct > state.maxPct;
+
+    tryBox.classList.toggle('is-over', over);
+
+    $('#tryPct').textContent    = formatPercent(pct);
+    $('#tryPrice').textContent  = formatMoney(finalPrice);
+    $('#tryMargin').textContent = formatPercent(marginNow);
+    $('#tryProfit').textContent = formatMoney(profit);
+
+    $('#tryNote').textContent = over
+      ? 'Скидка превышает допустимый предел ' + formatPercent(state.maxPct) +
+        '. Такая сделка требует согласования.'
+      : 'В пределах допустимого. Остаётся запас ' + formatPercent(state.maxPct - pct) + '.';
+
+    // Скрипты строим по допустимой части: предлагать клиенту то,
+    // что не согласовано, нельзя
+    renderScripts(Math.min(pct, state.maxPct));
+  }
+
+  tryRange.addEventListener('input', updateTry);
+
+  /* ---------- Разбор расчёта простыми словами ---------- */
+
+  // Деньги без копеек — так формулы и сообщения читаются легче
+  function formatMoneyShort(n) {
+    return Math.round(n).toLocaleString('ru-RU') + ' ₽';
+  }
+
+  function fillExplanation() {
+    var share = 1 - state.margin / 100;   // доля себестоимости в цене
+
+    $('#expMargin').textContent    = formatPercent(state.margin);
+    $('#expMarginRub').textContent = state.margin.toLocaleString('ru-RU', { maximumFractionDigits: 1 }) + ' ₽';
+
+    $('#expFormula1').textContent =
+      formatMoneyShort(state.cost) + ' ÷ ' + share.toLocaleString('ru-RU', { maximumFractionDigits: 3 }) +
+      ' = ' + formatMoneyShort(state.minPrice);
+
+    $('#expFormula2').textContent =
+      '(' + formatMoneyShort(state.price) + ' − ' + formatMoneyShort(state.minPrice) + ') ÷ ' +
+      formatMoneyShort(state.price) + ' = ' + formatPercent(state.maxPct);
+
+    $('#expPlain').textContent = state.maxPct > 0
+      ? 'Проще говоря: ваш пол по цене — ' + formatMoneyShort(state.minPrice) +
+        '. Всё, что выше него, можно отдать клиенту скидкой. В деньгах это ' +
+        formatMoneyShort(state.price - state.minPrice) + ', или ' + formatPercent(state.maxPct) +
+        ' от базовой цены.'
+      : 'Проще говоря: ваш пол по цене — ' + formatMoneyShort(state.minPrice) +
+        ', а базовая цена ниже него. Запаса под скидку нет, наоборот — цену нужно поднимать.';
+  }
+
+  /* ---------- Скрипты для клиента ----------
+     Три сообщения под одну и ту же ситуацию, но с разной тактикой.
+     Числа подставляются из расчёта, в квадратных скобках остаются
+     места, которые менеджер заполняет сам. */
+
+  var scriptsBox  = $('#calcScripts');
+  var scriptsGrid = $('#scriptsGrid');
+  var scriptsNote = $('#scriptsNote');
+
+  function buildScripts(pct) {
+    // Итоговую цену округляем вверх до рубля — в пользу маржи
+    var finalPrice = Math.ceil(state.price * (1 - pct / 100));
+    var saved = state.price - finalPrice;
+
+    // Скидки нет: все три сценария удерживают цену
+    if (pct <= 0) {
+      return [
+        {
+          label: 'Ценность вместо скидки',
+          goal: 'Когда снижать нельзя, но терять клиента не хочется',
+          text: '[Имя], добрый день!\n\nПо [позиции] цена — ' + formatMoneyShort(state.price) +
+                '. Снизить её я, к сожалению, не могу: это себестоимость плюс минимальная рентабельность.\n\n' +
+                'Зато в цену уже входит [гарантия / доставка / настройка] — то, что обычно оплачивается отдельно. ' +
+                'Готов зафиксировать эту стоимость за вами до [дата].'
+        },
+        {
+          label: 'Другая конфигурация',
+          goal: 'Сдвинуть разговор с цены на состав предложения',
+          text: '[Имя], добрый день!\n\nПо текущей комплектации ' + formatMoneyShort(state.price) +
+                ' — это минимум, ниже уйти не получится.\n\n' +
+                'Но бюджет можно уложить иначе: есть вариант без [опция], он выйдет дешевле. ' +
+                'Скажите, какая сумма для вас комфортна, и я подберу состав под неё.'
+        },
+        {
+          label: 'Объём или сроки',
+          goal: 'Предложить условия, при которых скидка станет возможной',
+          text: '[Имя], добрый день!\n\nНа одну позицию цена ' + formatMoneyShort(state.price) +
+                ' — она уже на минимуме.\n\n' +
+                'Если речь о партии от [количество] или о работе на [срок], смогу вернуться с другой ценой: ' +
+                'на объёме экономика считается иначе. Подскажите ваши планы — пересчитаю.'
+        }
+      ];
+    }
+
+    // Скидка возможна
+    return [
+      {
+        label: 'Мягкий заход',
+        goal: 'Оставить запас для торга — предлагает половину лимита',
+        text: '[Имя], добрый день!\n\nПо [позиции] базовая цена — ' + formatMoneyShort(state.price) +
+              '. Обсудил ваш вопрос и готов предложить ' + formatPercent(pct / 2) + ' — это ' +
+              formatMoneyShort(Math.ceil(state.price * (1 - pct / 200))) + '.\n\n' +
+              'Если решение примете до [дата], зафиксирую эту цену. Оформляем?'
+      },
+      {
+        label: 'Максимум сразу',
+        goal: 'Когда клиент торгуется жёстко и время дороже маржи',
+        text: '[Имя], добрый день!\n\nПосмотрел, что могу сделать по цене. Базовая — ' +
+              formatMoneyShort(state.price) + ', для вас готов дать ' + formatPercent(pct) +
+              '. Итог — ' + formatMoneyShort(finalPrice) + ', экономия ' + formatMoneyShort(saved) + '.\n\n' +
+              'Скажу честно: это предел, ниже я уйти не смогу. Предложение действует до [дата].'
+      },
+      {
+        label: 'Скидка в обмен',
+        goal: 'Отдать скидку не бесплатно, а за встречное условие',
+        text: '[Имя], добрый день!\n\nПо [позиции] цена — ' + formatMoneyShort(state.price) +
+              '. Скидку ' + formatPercent(pct) + ' до ' + formatMoneyShort(finalPrice) +
+              ' готов дать при одном из условий:\n' +
+              '— полная предоплата;\n' +
+              '— объём от [количество];\n' +
+              '— отгрузка до [дата].\n\n' +
+              'Что из этого вам подходит?'
+      }
+    ];
+  }
+
+  function renderScripts(pct) {
+    var items = buildScripts(pct);
+    scriptsGrid.innerHTML = '';
+
+    items.forEach(function (item) {
+      var card = document.createElement('article');
+      card.className = 'script';
+
+      var label = document.createElement('span');
+      label.className = 'script__label';
+      label.textContent = item.label;
+
+      var goal = document.createElement('p');
+      goal.className = 'script__goal';
+      goal.textContent = item.goal;
+
+      var text = document.createElement('p');
+      text.className = 'script__text';
+      text.textContent = item.text;   // textContent, а не innerHTML: текст пользовательский
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn--outline';
+      btn.textContent = 'Скопировать';
+      btn.addEventListener('click', function () {
+        copyText(item.text, 'Скрипт «' + item.label + '» скопирован');
+      });
+
+      card.appendChild(label);
+      card.appendChild(goal);
+      card.appendChild(text);
+      card.appendChild(btn);
+      scriptsGrid.appendChild(card);
+    });
+
+    scriptsNote.textContent = pct > 0
+      ? 'Под скидку ' + formatPercent(pct) + '. Двигайте ползунок — тексты пересчитаются.'
+      : 'Скидка недоступна — сообщения удерживают базовую цену.';
+
+    scriptsBox.hidden = false;
+  }
+
+  /* ============================================================
+     11. СТАРТ
      Прогресс-бар запускается после отрисовки страницы.
      ============================================================ */
   window.addEventListener('load', runProgress);

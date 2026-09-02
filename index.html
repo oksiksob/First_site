@@ -2,191 +2,329 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#141823">
 <title>Коммерческое предложение — финансовый директор для онлайн-школы</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;800&family=Spectral:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#E9EDF0; --grid:#D6DEE5; --surface:#F8FAFB;
-    --ink:#16202B; --ink-soft:#5B6B7A;
-    --plan:#1F3FBF; --gap:#A8123C; --gap-soft:#F0D6DE; --hair:#C3CDD6;
-    --sans:"Golos Text","Helvetica Neue",Arial,sans-serif;
-    --serif:"Spectral",Georgia,"Times New Roman",serif;
+    color-scheme:dark;
+
+    --bg-page:#1d232c;
+    --bg-cool:#29313e;
+    --surface-navy-deep:#141823;
+
+    --steel-light:#596c83;
+    --steel-base:#40546b;
+    --steel-dark:#32435a;
+    --steel-shadow:#233040;
+
+    --blue-active:#57b2f9;
+    --blue-soft:#a2cff4;
+    --blue-focus:#edf8f6;
+
+    --champagne-dark:#968568;
+    --champagne:#ccb17d;
+    --champagne-mid:#e0c790;
+    --champagne-light:#f3e0ac;
+    --champagne-highlight:#fcf6dd;
+
+    --text-primary:#f3f1ec;
+    --text-secondary:#d1dbea;
+    --text-warm:#dcd4c8;
+    --text-muted:#b8b7b7;
+    --text-dark:#17202a;
+
+    --success:#9fbea3;
+    --error:#d98f86;
+    --error-light:#f0b5ad;
+
+    --radius-sm:8px;
+    --radius-md:12px;
+    --radius-lg:18px;
+    --radius-xl:24px;
+    --radius-pill:999px;
+
+    --border-subtle:1px solid rgba(252,246,221,.14);
+    --border-standard:1px solid rgba(252,246,221,.28);
+
+    --shadow-inset:inset 1px 1px 0 rgba(255,255,255,.16), inset -2px -3px 7px rgba(5,8,14,.38);
+    --shadow-level-1:0 5px 12px rgba(4,7,12,.34), var(--shadow-inset);
+    --shadow-level-2:0 12px 26px rgba(4,7,12,.48), 0 2px 5px rgba(4,7,12,.54), var(--shadow-inset);
+    --shadow-level-3:0 24px 52px rgba(3,6,12,.62), 0 7px 18px rgba(4,7,12,.52), var(--shadow-inset);
+    --shadow-pressed:inset 4px 5px 9px rgba(2,7,16,.64), inset -1px -1px 2px rgba(218,235,255,.12);
+    --shadow-well:inset 3px 3px 10px rgba(3,6,12,.38), inset -1px -1px 0 rgba(255,255,255,.04);
+    --glow-blue:0 0 0 1px rgba(162,207,244,.72), 0 0 14px rgba(87,178,249,.50), 0 0 30px rgba(87,178,249,.18);
+    --glow-gold:0 0 0 1px rgba(252,246,221,.80), 0 0 13px rgba(224,199,144,.45), 0 0 28px rgba(204,177,125,.18);
+
+    --duration-fast:120ms;
+    --duration-base:190ms;
+    --duration-slow:280ms;
+    --ease-out:cubic-bezier(.2,.8,.2,1);
+
+    --font-ui:"Roboto","Segoe UI",Arial,sans-serif;
+    --font-mono:"JetBrains Mono","Cascadia Code",Consolas,monospace;
   }
   *{box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  html{min-width:320px;scroll-behavior:smooth;scroll-padding-top:32px;background:var(--surface-navy-deep);-webkit-text-size-adjust:100%}
   body{
-    margin:0;background-color:var(--paper);
-    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
-    background-size:26px 26px;
-    color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.65;
+    min-height:100vh;margin:0;color:var(--text-primary);
+    font-family:var(--font-ui);font-size:16px;line-height:1.55;
+    text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(ellipse 74% 33% at 52% -4%, rgba(154,147,137,.58), transparent 68%),
+      radial-gradient(circle at 2% 23%, rgba(73,100,130,.44), transparent 34%),
+      radial-gradient(circle at 98% 30%, rgba(139,128,113,.30), transparent 35%),
+      linear-gradient(145deg, var(--bg-cool) 0%, var(--bg-page) 44%, var(--surface-navy-deep) 100%);
+    background-attachment:fixed;
   }
-  .wrap{max-width:1010px;margin:0 auto;padding:0 20px 80px}
+  body::before{
+    position:fixed;inset:0;z-index:-1;pointer-events:none;content:"";opacity:.12;mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.50'/%3E%3C/svg%3E");
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:0 20px 72px}
 
   .docline{
-    display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;
-    border-bottom:1px solid var(--ink);padding:22px 0 10px;margin-bottom:40px;
-    font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);
+    display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center;
+    padding:22px 0 18px;margin-bottom:30px;
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);
+    border-bottom:var(--border-subtle);
   }
-  .docline b{font-weight:600;color:var(--ink)}
+  .docline b{font-weight:600;color:var(--champagne-light)}
 
-  h1{font-family:var(--sans);font-weight:800;font-size:clamp(30px,5.2vw,52px);line-height:1.05;letter-spacing:-.022em;margin:0 0 18px;max-width:17ch}
-  h1 .rub{color:var(--gap)}
-  .lede{max-width:62ch;margin:0 0 14px;font-size:18px}
-  .lede.muted{color:var(--ink-soft);font-size:16px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;margin:0 0 18px;
+    color:var(--champagne-light);font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  }
+  .eyebrow::before{width:28px;height:1px;content:"";background:linear-gradient(90deg,var(--champagne),transparent)}
 
-  h2{font-family:var(--sans);font-weight:600;font-size:clamp(21px,3vw,29px);line-height:1.2;letter-spacing:-.015em;margin:0 0 10px;max-width:24ch}
-  h3{font-family:var(--sans);font-weight:600;font-size:17px;margin:0 0 4px;letter-spacing:-.01em}
+  h1{
+    max-width:19ch;margin:0 0 22px;line-height:1.06;
+    font-size:clamp(2.2rem,4.6vw,4.1rem);font-weight:600;letter-spacing:-.045em;
+  }
+  h1 .accent{color:var(--champagne-highlight)}
+  h2{margin:0 0 12px;line-height:1.1;font-size:clamp(1.5rem,2.7vw,2.2rem);font-weight:560;letter-spacing:-.025em;max-width:24ch}
+  h3{margin:0 0 6px;font-size:1rem;font-weight:600;letter-spacing:-.01em;color:var(--text-primary)}
   p{margin:0 0 14px}
-  .sub{color:var(--ink-soft);max-width:62ch;margin:0 0 26px}
-  section{margin-top:60px}
-  .rule{border:0;border-top:1px solid var(--hair);margin:60px 0 0}
+  .lede{max-width:64ch;color:var(--text-secondary);font-size:1.06rem}
+  .sub{max-width:66ch;color:var(--text-muted);margin:0 0 24px}
+  .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+
+  /* панели-секции */
+  .component-section{
+    position:relative;margin:26px 0 0;padding:clamp(22px,3.6vw,36px);
+    border:var(--border-subtle);border-radius:var(--radius-xl);
+    background:linear-gradient(145deg, rgba(46,48,55,.78), rgba(21,25,35,.90));
+    box-shadow:var(--shadow-level-2);
+  }
+  .component-section::before{
+    position:absolute;top:0;left:8%;width:46%;height:1px;content:"";
+    background:linear-gradient(90deg,transparent,rgba(252,246,221,.52),transparent);
+  }
+  .section-head{display:flex;justify-content:space-between;gap:24px;align-items:start;margin-bottom:24px}
+  .section-head > div{min-width:0}
+  .section-head .sub{margin:0}
+  .section-index{flex:0 0 auto;color:var(--champagne);font-family:var(--font-mono);font-size:.76rem;letter-spacing:.06em}
 
   /* факты */
-  .facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid var(--hair);background:var(--surface);margin:24px 0 22px}
-  .fact{padding:14px 16px;border-right:1px solid var(--hair);display:flex;flex-direction:column;gap:4px}
-  .fact:last-child{border-right:0}
-  .fk{font-family:var(--sans);font-size:12.5px;color:var(--ink-soft)}
-  .fv{font-family:var(--sans);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.3}
-  .gapfact{background:var(--gap-soft)}
-  .gapfact .fv{color:var(--gap)}
-
-  /* кнопки-ссылки */
-  .btn{
-    display:inline-block;font-family:var(--sans);font-weight:600;font-size:16px;text-decoration:none;
-    padding:13px 26px;background:var(--ink);color:var(--surface);border:1.5px solid var(--ink);
+  .facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:26px 0 24px}
+  .fact{
+    padding:14px 16px;border:1px solid rgba(209,219,234,.12);border-radius:var(--radius-lg);
+    background:rgba(13,17,25,.42);box-shadow:var(--shadow-well);
+    display:flex;flex-direction:column;gap:6px;
   }
-  .btn:hover{background:var(--plan);border-color:var(--plan)}
-  .btn:focus-visible{outline:2px solid var(--plan);outline-offset:3px}
-  .btn.light{background:var(--surface);color:var(--ink);border-color:var(--surface)}
-  .btn.light:hover{background:#fff;border-color:#fff;color:var(--ink)}
-  .btnrow{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:8px}
-  .btnrow .note{font-family:var(--sans);font-size:13.5px;color:var(--ink-soft)}
+  .fk{font-family:var(--font-mono);font-size:.63rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+  .fv{font-family:var(--font-mono);font-size:.95rem;font-weight:500;color:var(--text-secondary);line-height:1.3}
+  .gapfact{border-color:rgba(217,143,134,.42);background:rgba(58,26,26,.34)}
+  .gapfact .fv{color:var(--error-light)}
 
-  /* вводные и рычаги */
-  .basics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 34px;background:var(--surface);border:1px solid var(--hair);padding:20px;margin-bottom:22px}
-  .ctl label{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-family:var(--sans);font-size:14.5px;font-weight:500}
-  .ctl .val{font-variant-numeric:tabular-nums;font-weight:600;font-size:16px}
-  .ctl .hint{display:block;font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);font-weight:400;margin-top:4px;line-height:1.45;max-width:48ch}
-  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;margin:6px 0 0;background:transparent;cursor:pointer}
-  input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--hair)}
-  input[type=range]::-moz-range-track{height:3px;background:var(--hair)}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-6.5px;border-radius:50%;background:var(--ink);border:3px solid var(--surface);box-shadow:0 0 0 1px var(--ink)}
-  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink);border:3px solid var(--surface);box-shadow:0 0 0 1px var(--ink)}
-  input[type=range]:focus-visible{outline:2px solid var(--plan);outline-offset:4px}
-  input[type=number]{font-family:var(--sans);font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;width:100%;padding:8px 10px;border:1px solid var(--hair);background:#fff;color:var(--ink);border-radius:0;margin-top:6px}
-  input[type=number]:focus-visible{outline:2px solid var(--plan);outline-offset:2px}
-
+  /* кнопки */
+  .btn{
+    position:relative;display:inline-flex;min-height:46px;min-width:138px;align-items:center;justify-content:center;gap:9px;
+    padding:10px 22px;color:var(--text-primary);font-family:var(--font-ui);font-weight:650;font-size:.9rem;line-height:1.1;
+    text-decoration:none;border:1px solid rgba(252,246,221,.54);border-radius:var(--radius-pill);
+    background:linear-gradient(180deg,#4f6680 0%,#384e69 54%,#2c405a 100%);
+    box-shadow:var(--shadow-level-1), 0 0 11px rgba(204,177,125,.12);
+    cursor:pointer;user-select:none;
+    transition:transform var(--duration-fast) var(--ease-out), color var(--duration-base), background var(--duration-base), box-shadow var(--duration-base), border-color var(--duration-base);
+  }
+  .btn:hover{color:var(--text-dark);border-color:var(--blue-focus);background:linear-gradient(180deg,#b5d8f5 0%,#8ab6e5 52%,#6d9fd6 100%);box-shadow:var(--shadow-level-1), var(--glow-blue);transform:translateY(-1px)}
+  .btn:active{background:linear-gradient(180deg,#253852,#122746);color:var(--text-primary);box-shadow:var(--shadow-pressed);transform:translateY(1px)}
+  .btn:focus-visible{outline:2px solid var(--blue-focus);outline-offset:4px}
+  .btn.gold{color:var(--text-dark);border-color:var(--champagne-highlight);background:linear-gradient(180deg,var(--champagne-highlight),var(--champagne-mid));box-shadow:var(--shadow-level-1), var(--glow-gold)}
+  .btn.gold:hover{background:linear-gradient(180deg,#fff,var(--champagne-light))}
+  .btnrow{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:6px}
+  .btnrow .note{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.05em;color:var(--text-muted);text-transform:uppercase}
+  .ghost{
+    all:unset;cursor:pointer;display:inline-flex;align-items:center;min-height:38px;padding:8px 16px;
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);
+    border:1px solid rgba(209,219,234,.20);border-radius:var(--radius-pill);background:rgba(13,17,25,.42);
+    box-shadow:var(--shadow-well);transition:color var(--duration-base), border-color var(--duration-base), box-shadow var(--duration-base);
+  }
+  .ghost:hover{color:var(--champagne-light);border-color:rgba(252,246,221,.42);box-shadow:var(--shadow-well), 0 0 12px rgba(204,177,125,.18)}
+  .ghost:focus-visible{outline:2px solid var(--blue-focus);outline-offset:3px}
   .scenario-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
-  .ghost{all:unset;cursor:pointer;font-family:var(--sans);font-size:13.5px;font-weight:500;padding:8px 14px;border:1px solid var(--hair);color:var(--ink-soft);background:var(--surface)}
-  .ghost:hover{border-color:var(--ink);color:var(--ink)}
-  .ghost:focus-visible{outline:2px solid var(--plan);outline-offset:2px}
 
-  .levers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 34px}
-  .lever{border-top:1px solid var(--hair);padding-top:16px}
-  .lever p{font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin:6px 0 10px;max-width:44ch}
-  .lever .money{font-family:var(--sans);font-size:13.5px;color:var(--gap);font-weight:500;font-variant-numeric:tabular-nums;line-height:1.4}
+  /* поля и ползунки */
+  .subpanel{
+    padding:20px;border:1px solid rgba(209,219,234,.12);border-radius:var(--radius-lg);
+    background:rgba(13,17,25,.42);box-shadow:var(--shadow-well);
+  }
+  .basics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 34px;margin-bottom:22px}
+  .ctl label{display:flex;justify-content:space-between;align-items:center;gap:14px;font-size:.9rem;font-weight:500;color:var(--text-secondary)}
+  .ctl .val{
+    min-width:72px;padding:5px 11px;color:var(--text-dark);font-family:var(--font-mono);font-size:.82rem;text-align:center;
+    border-radius:var(--radius-pill);background:linear-gradient(180deg,var(--champagne-highlight),var(--champagne-mid));box-shadow:var(--glow-gold);
+  }
+  .ctl .hint{display:block;margin-top:10px;font-size:.78rem;line-height:1.5;color:var(--text-muted);max-width:52ch}
+  input[type=range]{width:100%;height:28px;margin:10px 0 0;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:8px;border:1px solid rgba(209,219,234,.15);border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--blue-active) 0 var(--range-fill,50%), #363a42 var(--range-fill,50%) 100%);box-shadow:inset 2px 3px 5px rgba(3,6,12,.52)}
+  input[type=range]::-moz-range-track{height:8px;border:1px solid rgba(209,219,234,.15);border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--blue-active) 0 var(--range-fill,50%), #363a42 var(--range-fill,50%) 100%);box-shadow:inset 2px 3px 5px rgba(3,6,12,.52)}
+  input[type=range]::-webkit-slider-thumb{width:18px;height:28px;margin-top:-11px;-webkit-appearance:none;border:1px solid var(--champagne-highlight);border-radius:7px;background:linear-gradient(90deg,var(--champagne-dark),var(--champagne-highlight),var(--champagne));box-shadow:var(--glow-gold)}
+  input[type=range]::-moz-range-thumb{width:18px;height:28px;border:1px solid var(--champagne-highlight);border-radius:7px;background:linear-gradient(90deg,var(--champagne-dark),var(--champagne-highlight),var(--champagne));box-shadow:var(--glow-gold)}
+  input[type=range]:focus-visible{outline:2px solid var(--blue-focus);outline-offset:6px;border-radius:var(--radius-pill)}
+  input[type=number]{
+    width:100%;margin-top:10px;padding:11px 14px;color:var(--text-primary);
+    font-family:var(--font-mono);font-size:1rem;font-variant-numeric:tabular-nums;
+    border:1px solid rgba(209,219,234,.18);border-radius:var(--radius-md);
+    background:rgba(9,13,20,.62);box-shadow:inset 2px 3px 6px rgba(3,6,12,.52);
+  }
+  input[type=number]:focus-visible{outline:2px solid var(--blue-focus);outline-offset:3px;border-color:var(--blue-soft)}
+
+  /* рычаги */
+  .levers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .lever{padding:20px;border:1px solid rgba(209,219,234,.12);border-radius:var(--radius-lg);background:rgba(13,17,25,.42);box-shadow:var(--shadow-well)}
+  .lever p{margin:8px 0 14px;font-size:.82rem;line-height:1.5;color:var(--text-muted)}
+  .lever .money{margin-top:12px;font-family:var(--font-mono);font-size:.76rem;line-height:1.5;color:var(--champagne-light)}
 
   /* итог */
-  .trio{display:grid;grid-template-columns:1.4fr 1fr 1fr;border:1px solid var(--hair);background:var(--surface);margin-top:30px}
-  .tcell{padding:20px;border-right:1px solid var(--hair);display:flex;flex-direction:column;gap:6px}
-  .tcell:last-child{border-right:0}
-  .tcap{font-family:var(--sans);font-size:13px;color:var(--ink-soft)}
-  .tnum{font-family:var(--sans);font-weight:800;letter-spacing:-.025em;font-variant-numeric:tabular-nums;font-size:clamp(22px,3.4vw,30px);line-height:1}
-  .tnum.lead{font-size:clamp(28px,4.6vw,42px);color:var(--plan)}
-  .tsub{font-family:var(--sans);font-size:12.5px;color:var(--ink-soft)}
-  .bridge{display:flex;flex-wrap:wrap;gap:16px;align-items:center;border-top:1px solid var(--ink);margin-top:22px;padding-top:18px}
-  .bridge p{font-family:var(--sans);font-size:15px;margin:0;max-width:46ch;color:var(--ink-soft)}
-  .bridge b{color:var(--ink);font-weight:600}
+  .trio{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:16px;margin-top:26px}
+  .tcell{
+    padding:22px;border:1px solid rgba(252,246,221,.28);border-radius:var(--radius-lg);
+    background:linear-gradient(145deg,rgba(89,108,131,.93),rgba(32,37,47,.94));
+    box-shadow:var(--shadow-level-2);display:flex;flex-direction:column;gap:8px;
+  }
+  .tcell.hero{border-color:rgba(252,246,221,.52);box-shadow:var(--shadow-level-2), var(--glow-gold)}
+  .tcap{font-family:var(--font-mono);font-size:.63rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-warm)}
+  .tnum{font-family:var(--font-mono);font-weight:600;font-variant-numeric:tabular-nums;font-size:clamp(1.25rem,2.4vw,1.7rem);line-height:1.1;color:var(--text-primary)}
+  .tnum.lead{font-size:clamp(1.7rem,3.4vw,2.6rem);color:var(--champagne-highlight)}
+  .tsub{font-family:var(--font-mono);font-size:.68rem;color:var(--text-muted)}
+
+  .bridge{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;margin-top:24px;padding-top:22px;border-top:var(--border-subtle)}
+  .bridge p{margin:0;max-width:50ch;color:var(--text-secondary);font-size:.95rem}
+  .bridge b{color:var(--champagne-highlight);font-weight:600;font-family:var(--font-mono)}
 
   /* таблица */
-  table{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:14.5px}
-  th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--hair)}
-  thead th{font-weight:600;font-size:13.5px;color:var(--ink-soft);border-bottom:1px solid var(--ink)}
-  tbody th{font-weight:500;width:22%}
-  td.now{color:var(--gap);width:39%}
-  td.after{color:var(--ink);width:39%}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th,td{text-align:left;vertical-align:top;padding:13px 14px;border-bottom:1px solid rgba(209,219,234,.10)}
+  thead th{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid rgba(252,246,221,.28)}
+  tbody th{font-weight:500;width:20%;color:var(--text-warm)}
+  td.now{color:var(--error-light);width:40%}
+  td.after{color:var(--text-secondary);width:40%}
 
   /* план */
-  .stage{border-top:1px solid var(--hair)}
-  .stage:last-of-type{border-bottom:1px solid var(--hair)}
-  .stage button{all:unset;display:flex;gap:16px;align-items:baseline;width:100%;cursor:pointer;padding:15px 0;font-family:var(--sans);font-size:16.5px;font-weight:600;letter-spacing:-.01em}
-  .stage button:focus-visible{outline:2px solid var(--plan);outline-offset:3px}
-  .stage .week{color:var(--ink-soft);font-weight:500;font-size:14px;min-width:104px}
-  .stage .mark{margin-left:auto;color:var(--ink-soft);font-weight:400;font-size:22px;line-height:1;transition:transform .2s ease}
-  .stage[open-state="1"] .mark{transform:rotate(45deg)}
-  .stage .body{display:none;padding:0 0 18px 120px}
+  .stage{border-bottom:1px solid rgba(209,219,234,.10)}
+  .stage:first-of-type{border-top:1px solid rgba(209,219,234,.10)}
+  .stage button{
+    all:unset;display:flex;gap:16px;align-items:center;width:100%;min-height:44px;cursor:pointer;padding:16px 0;
+    font-size:1rem;font-weight:600;letter-spacing:-.01em;color:var(--text-primary);
+  }
+  .stage button:focus-visible{outline:2px solid var(--blue-focus);outline-offset:3px}
+  .stage .week{color:var(--champagne);font-family:var(--font-mono);font-size:.72rem;letter-spacing:.06em;min-width:110px}
+  .stage .mark{margin-left:auto;color:var(--text-muted);font-weight:400;font-size:1.35rem;line-height:1;transition:transform var(--duration-base) var(--ease-out)}
+  .stage[open-state="1"] .mark{transform:rotate(45deg);color:var(--champagne-light)}
+  .stage .body{display:none;padding:0 0 20px 126px}
   .stage[open-state="1"] .body{display:block}
-  .stage ul{margin:0;padding-left:18px;font-family:var(--sans);font-size:14.5px;color:var(--ink-soft);line-height:1.6}
-  .stage li{margin-bottom:5px}
-  .stage li b{color:var(--ink);font-weight:500}
+  .stage ul{margin:0;padding-left:18px;font-size:.86rem;color:var(--text-muted);line-height:1.6}
+  .stage li{margin-bottom:6px}
+  .stage li b{color:var(--text-warm);font-weight:500}
 
   /* тарифы */
-  .reach-ctl{background:var(--surface);border:1px solid var(--hair);padding:18px 20px;margin-bottom:24px}
-  .plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--hair);background:var(--surface)}
-  .plan{padding:22px 20px;border-right:1px solid var(--hair);display:flex;flex-direction:column;position:relative}
-  .plan:last-child{border-right:0}
-  .plan.best{background:#fff;box-shadow:inset 0 3px 0 0 var(--plan)}
-  .plan .tag{position:absolute;top:-1px;right:16px;background:var(--plan);color:#fff;font-family:var(--sans);font-size:11.5px;font-weight:600;padding:3px 9px;letter-spacing:.02em}
-  .plan h3{font-size:16px;margin-bottom:10px}
-  .plan .price{font-family:var(--sans);font-size:14px;color:var(--ink-soft)}
-  .plan .price b{display:block;font-size:27px;font-weight:800;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
-  .plan .setup{font-family:var(--sans);font-size:13px;color:var(--ink-soft);margin-top:6px;padding-bottom:14px;border-bottom:1px solid var(--hair)}
-  .plan ul{margin:14px 0 18px;padding-left:16px;font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);line-height:1.5}
-  .plan li{margin-bottom:6px}
-  .planres{margin:auto 0 0;border-top:1px solid var(--ink);padding-top:12px;font-family:var(--sans)}
+  .plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:0;padding:0;list-style:none}
+  .plan{
+    position:relative;display:flex;flex-direction:column;padding:24px 22px;
+    border:1px solid rgba(252,246,221,.28);border-radius:var(--radius-lg);
+    background:linear-gradient(145deg,rgba(89,108,131,.93),rgba(32,37,47,.94));
+    box-shadow:var(--shadow-level-2);
+    transition:transform var(--duration-slow) var(--ease-out), border-color var(--duration-base), box-shadow var(--duration-slow);
+  }
+  .plan:hover{transform:translateY(-3px);border-color:rgba(162,207,244,.58);box-shadow:var(--shadow-level-3), 0 0 22px rgba(87,178,249,.16)}
+  .plan.best{border-color:rgba(252,246,221,.62);box-shadow:var(--shadow-level-2), var(--glow-gold)}
+  .plan.picked{border:2px solid var(--champagne-highlight);box-shadow:var(--shadow-level-3), var(--glow-gold)}
+  .plan .tag{
+    position:absolute;top:-11px;right:18px;padding:4px 10px;color:var(--text-dark);
+    font-family:var(--font-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+    border-radius:var(--radius-pill);background:var(--champagne-light);box-shadow:var(--glow-gold);
+  }
+  .plan .price{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-warm)}
+  .plan .price b{display:block;margin-bottom:2px;font-size:1.65rem;font-weight:600;letter-spacing:-.02em;color:var(--text-primary);font-variant-numeric:tabular-nums}
+  .plan .setup{margin-top:8px;padding-bottom:16px;border-bottom:1px solid rgba(252,246,221,.20);font-size:.78rem;color:var(--text-muted)}
+  .plan ul{margin:16px 0 20px;padding-left:16px;font-size:.82rem;color:var(--text-secondary);line-height:1.55}
+  .plan li{margin-bottom:7px}
+  .planres{margin:auto 0 0;padding-top:14px;border-top:1px solid rgba(252,246,221,.20)}
   .planres > div{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:5px 0}
-  .planres dt{font-size:13px;color:var(--ink-soft)}
-  .planres dd{margin:0;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
-  .plan.best .planres dd{color:var(--plan)}
-  .pick{all:unset;box-sizing:border-box;display:block;width:100%;text-align:center;cursor:pointer;margin-top:16px;padding:12px 14px;font-family:var(--sans);font-size:14.5px;font-weight:600;color:var(--ink);border:1.5px solid var(--ink);background:transparent}
-  .pick:hover{background:var(--ink);color:var(--surface)}
-  .pick:focus-visible{outline:2px solid var(--plan);outline-offset:2px}
-  .plan.best .pick{background:var(--plan);border-color:var(--plan);color:#fff}
-  .plan.best .pick:hover{background:var(--ink);border-color:var(--ink)}
-  .plan.picked{outline:2px solid var(--ink);outline-offset:-2px}
-  .plan.picked .pick{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+  .planres dt{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text-warm)}
+  .planres dd{margin:0;font-family:var(--font-mono);font-size:.9rem;font-weight:500;font-variant-numeric:tabular-nums;text-align:right;color:var(--champagne-light)}
+  .pick{
+    all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+    width:100%;min-height:46px;margin-top:18px;padding:10px 16px;cursor:pointer;text-align:center;
+    font-weight:650;font-size:.88rem;color:var(--text-primary);
+    border:1px solid rgba(252,246,221,.54);border-radius:var(--radius-pill);
+    background:linear-gradient(180deg,#4f6680 0%,#384e69 54%,#2c405a 100%);
+    box-shadow:var(--shadow-level-1);
+    transition:transform var(--duration-fast) var(--ease-out), background var(--duration-base), color var(--duration-base), box-shadow var(--duration-base);
+  }
+  .pick:hover{color:var(--text-dark);background:linear-gradient(180deg,#b5d8f5,#8ab6e5 52%,#6d9fd6);box-shadow:var(--shadow-level-1), var(--glow-blue);transform:translateY(-1px)}
+  .pick:active{background:linear-gradient(180deg,#253852,#122746);color:var(--text-primary);box-shadow:var(--shadow-pressed);transform:translateY(1px)}
+  .pick:focus-visible{outline:2px solid var(--blue-focus);outline-offset:3px}
+  .plan.best .pick{color:var(--text-dark);border-color:var(--champagne-highlight);background:linear-gradient(180deg,var(--champagne-highlight),var(--champagne-mid));box-shadow:var(--shadow-level-1), var(--glow-gold)}
+  .plan.best .pick:hover{background:linear-gradient(180deg,#fff,var(--champagne-light))}
+  .plan.picked .pick{color:var(--text-dark);background:linear-gradient(180deg,var(--champagne-highlight),var(--champagne));border-color:#fff}
 
   /* график */
-  .cum{margin-top:30px;background:var(--surface);border:1px solid var(--hair);padding:20px 20px 14px}
-  .cumhead{display:flex;flex-wrap:wrap;gap:6px 26px;font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);margin-bottom:14px}
-  .cumhead .key{display:inline-block;width:22px;height:0;border-top:3px solid var(--plan);margin-right:8px;vertical-align:middle}
+  .cum{margin-top:26px;padding:22px 22px 16px;border:1px solid rgba(209,219,234,.12);border-radius:var(--radius-lg);background:rgba(13,17,25,.42);box-shadow:var(--shadow-well)}
+  .cumhead{display:flex;flex-wrap:wrap;gap:8px 26px;margin-bottom:16px;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.04em;color:var(--text-muted)}
+  .cumhead .key{display:inline-block;width:22px;height:0;border-top:3px solid var(--champagne);margin-right:9px;vertical-align:middle}
   .cum svg{width:100%;height:220px;display:block}
-  .cumfoot{font-family:var(--sans);font-size:13px;color:var(--ink-soft);margin:12px 0 0;max-width:74ch}
-  .zero-line{stroke:var(--ink);stroke-width:1}
-  .axis-text{font-family:var(--sans);font-size:11px;fill:var(--ink-soft)}
+  .cumfoot{margin:14px 0 0;font-size:.78rem;line-height:1.5;color:var(--text-muted);max-width:76ch}
+  .zero-line{stroke:rgba(252,246,221,.55);stroke-width:1}
+  .axis-text{font-family:var(--font-mono);font-size:11px;fill:var(--text-muted)}
   .pline{fill:none;stroke-width:2}
-  .pline-0{stroke:var(--ink-soft)}
-  .pline-1{stroke:var(--plan);stroke-width:3}
-  .pline-2{stroke:var(--ink)}
-  .neg-band{fill:var(--gap);opacity:.07}
+  .pline-0{stroke:#8ea3ba}
+  .pline-1{stroke:var(--champagne-mid);stroke-width:3}
+  .pline-2{stroke:var(--blue-soft)}
+  .neg-band{fill:var(--error);opacity:.10}
 
-  /* честность + финал */
-  .honest{margin:0;padding-left:20px;max-width:66ch;font-size:16px}
-  .honest li{margin-bottom:12px}
-  .honest b{font-family:var(--sans);font-size:15.5px;font-weight:600}
-  .cta{background:var(--ink);color:var(--surface);padding:34px;margin-top:60px}
-  .cta h2{color:var(--surface);max-width:20ch}
-  .cta p{color:#B9C6D2;max-width:56ch;font-size:16px}
-  .picked-note{font-family:var(--sans);font-size:15px;color:#fff;font-weight:600;border-left:3px solid var(--surface);padding-left:14px;margin:0 0 18px}
-  .fine{font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);max-width:76ch;line-height:1.55;margin-top:28px}
+  /* честность и финал */
+  .honest{margin:0;padding-left:22px;max-width:70ch;color:var(--text-secondary);font-size:.95rem}
+  .honest li{margin-bottom:14px}
+  .honest b{color:var(--text-primary);font-weight:600}
+  .fine{margin-top:24px;font-size:.76rem;line-height:1.6;color:var(--text-muted);max-width:80ch}
 
-  @media (max-width:820px){
+  .cta{
+    position:relative;margin-top:26px;padding:clamp(24px,3.6vw,38px);
+    border:1px solid rgba(252,246,221,.32);border-radius:var(--radius-xl);
+    background:linear-gradient(145deg,rgba(89,108,131,.92),rgba(20,24,35,.96));
+    box-shadow:var(--shadow-level-3), 0 0 26px rgba(204,177,125,.10);
+  }
+  .cta h2{color:var(--text-primary)}
+  .cta p{color:var(--text-secondary);max-width:58ch;font-size:.98rem}
+  .picked-note{
+    display:inline-block;margin:0 0 18px;padding:10px 16px;
+    font-family:var(--font-mono);font-size:.8rem;color:var(--champagne-highlight);
+    border:1px solid rgba(252,246,221,.34);border-radius:var(--radius-md);background:rgba(9,13,20,.52);
+  }
+  .footer{margin-top:32px;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);text-align:center}
+
+  @media (max-width:900px){
     .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .fact{border-bottom:1px solid var(--hair)}
-    .fact:nth-child(odd){border-right:1px solid var(--hair)}
-    .fact:nth-child(even){border-right:0}
-    .gapfact{grid-column:1 / -1;border-bottom:0}
-    .basics,.levers,.trio{grid-template-columns:minmax(0,1fr)}
-    .tcell{border-right:0;border-bottom:1px solid var(--hair)}
-    .tcell:last-child{border-bottom:0}
-    .plans{grid-template-columns:minmax(0,1fr)}
-    .plan{border-right:0;border-bottom:1px solid var(--hair)}
-    .plan:last-child{border-bottom:0}
+    .gapfact{grid-column:1 / -1}
+    .basics,.levers,.trio,.plans{grid-template-columns:minmax(0,1fr)}
+    .section-head{flex-direction:column;gap:10px}
     .stage .body{padding-left:0}
-    .stage .week{min-width:88px}
+    .stage .week{min-width:92px}
     .cum svg{height:190px}
   }
   @media (prefers-reduced-motion:reduce){
@@ -200,12 +338,13 @@
 
   <div class="docline">
     <span>Коммерческое предложение</span>
-    <span>для <b>[имя собственника]</b>, <b>[название школы]</b></span>
+    <span>для <b>[имя собственника]</b> · <b>[название школы]</b></span>
     <span>по итогам часовой диагностики</span>
-    <span>от <b>[имя финансового директора]</b></span>
+    <span>от <b>[имя финдиректора]</b></span>
   </div>
 
-  <h1>Как поднять чистую прибыль на <span class="rub">1,2 млн ₽ в месяц</span>, не увеличивая рекламный бюджет</h1>
+  <p class="eyebrow">Финансовый директор для онлайн-школы</p>
+  <h1>Как поднять чистую прибыль на <span class="accent">1,2 млн ₽ в месяц</span>, не увеличивая рекламный бюджет</h1>
   <p class="lede">Переход с 30% на 40% рентабельности за счёт управленческого учёта: где лежат деньги, за сколько это окупается и с чего начинаем.</p>
 
   <div class="facts">
@@ -217,15 +356,20 @@
   </div>
 
   <div class="btnrow">
-    <a class="btn" href="#tarify">Смотреть тарифы и окупаемость</a>
-    <span class="note">Расчёт ниже занимает минуту</span>
+    <a class="btn gold" href="#tarify">Смотреть тарифы и окупаемость</a>
+    <span class="note">расчёт ниже занимает минуту</span>
   </div>
 
-  <section aria-labelledby="h-model">
-    <h2 id="h-model">Найдите свои деньги</h2>
-    <p class="sub">Четыре рычага, где я вижу ваши десять процентных пунктов. Значения по умолчанию — моя оценка после диагностики. Обнулите и поставьте свои: цифры внизу пересчитаются.</p>
+  <section class="component-section" aria-labelledby="h-model">
+    <div class="section-head">
+      <div>
+        <h2 id="h-model">Найдите свои деньги</h2>
+        <p class="sub">Четыре рычага, где я вижу ваши десять процентных пунктов. Значения по умолчанию — моя оценка после диагностики. Обнулите и поставьте свои: цифры внизу пересчитаются.</p>
+      </div>
+      <span class="section-index">01 / 05</span>
+    </div>
 
-    <div class="basics">
+    <div class="basics subpanel">
       <div class="ctl">
         <label for="revenue">Оборот в месяц, ₽</label>
         <input type="number" id="revenue" value="12000000" min="1000000" max="100000000" step="100000">
@@ -233,7 +377,7 @@
       <div class="ctl">
         <label for="margin">Текущая рентабельность <span class="val"><span id="margin-v">30</span>%</span></label>
         <input type="range" id="margin" min="0" max="60" step="1" value="30">
-        <span class="hint">Один процентный пункт при вашем обороте — это <span id="pp-value">120 000</span> ₽ в месяц.</span>
+        <span class="hint">Один процентный пункт при вашем обороте — это <span class="mono" id="pp-value">120 000</span> ₽ в месяц.</span>
       </div>
     </div>
 
@@ -246,35 +390,35 @@
       <div class="lever">
         <h3>Юнит-экономика каналов трафика</h3>
         <p>1,3 млн ₽ уходят одной строкой. Считаем CAC и окупаемость когорт по каждому каналу, отключаем те, что дают выручку без прибыли.</p>
-        <label for="l1" class="ctl"><span style="font-family:var(--sans);font-size:14px">Вклад в рентабельность</span> <span class="val"><span id="l1-v">3,0</span> п.п.</span></label>
+        <label class="ctl" for="l1"><span>Вклад в рентабельность</span> <span class="val"><span id="l1-v">3,0</span> п.п.</span></label>
         <input type="range" id="l1" min="0" max="6" step="0.5" value="3">
         <div class="money" id="l1-m"></div>
       </div>
       <div class="lever">
         <h3>Фонд оплаты труда и загрузка команды</h3>
         <p>Считаем выручку и маржу на сотрудника, разделяем постоянную и переменную части, привязываем бонусы к прибыли, а не к обороту.</p>
-        <label for="l2" class="ctl"><span style="font-family:var(--sans);font-size:14px">Вклад в рентабельность</span> <span class="val"><span id="l2-v">2,5</span> п.п.</span></label>
+        <label class="ctl" for="l2"><span>Вклад в рентабельность</span> <span class="val"><span id="l2-v">2,5</span> п.п.</span></label>
         <input type="range" id="l2" min="0" max="6" step="0.5" value="2.5">
         <div class="money" id="l2-m"></div>
       </div>
       <div class="lever">
         <h3>Цены, линейка и возвраты</h3>
         <p>Маржинальность каждого продукта отдельно, с учётом рассрочек, скидок, возвратов и стоимости сопровождения. Убыточные тарифы живут в линейке годами незамеченными.</p>
-        <label for="l3" class="ctl"><span style="font-family:var(--sans);font-size:14px">Вклад в рентабельность</span> <span class="val"><span id="l3-v">3,0</span> п.п.</span></label>
+        <label class="ctl" for="l3"><span>Вклад в рентабельность</span> <span class="val"><span id="l3-v">3,0</span> п.п.</span></label>
         <input type="range" id="l3" min="0" max="6" step="0.5" value="3">
         <div class="money" id="l3-m"></div>
       </div>
       <div class="lever">
         <h3>Прочие расходы, налоги, подписки</h3>
         <p>Ревизия сервисов, подрядчиков, комиссий эквайринга и налогового режима. Самый быстрый рычаг: решения принимаются за недели.</p>
-        <label for="l4" class="ctl"><span style="font-family:var(--sans);font-size:14px">Вклад в рентабельность</span> <span class="val"><span id="l4-v">1,5</span> п.п.</span></label>
+        <label class="ctl" for="l4"><span>Вклад в рентабельность</span> <span class="val"><span id="l4-v">1,5</span> п.п.</span></label>
         <input type="range" id="l4" min="0" max="6" step="0.5" value="1.5">
         <div class="money" id="l4-m"></div>
       </div>
     </div>
 
     <div class="trio" aria-live="polite">
-      <div class="tcell">
+      <div class="tcell hero">
         <span class="tcap">Новая чистая прибыль</span>
         <span class="tnum lead" id="t-profit">4 800 000 ₽</span>
         <span class="tsub">в месяц</span>
@@ -292,16 +436,19 @@
     </div>
 
     <div class="bridge">
-      <p id="bridge-text"><b>1 200 000 ₽ в месяц</b> — это источник, из которого оплачивается вся работа ниже, и он остаётся у вас после её окончания.</p>
+      <p id="bridge-text"><b>1 200 000 ₽ в месяц</b> — источник, из которого оплачивается вся работа ниже, и он остаётся у вас после её окончания.</p>
       <a class="btn" href="#tarify">Сколько это стоит</a>
     </div>
   </section>
 
-  <hr class="rule">
-
-  <section aria-labelledby="h-diff">
-    <h2 id="h-diff">Почему прибыль вообще появится</h2>
-    <p class="sub">Не за счёт экономии, а за счёт того, что решения начинают приниматься на цифрах.</p>
+  <section class="component-section" aria-labelledby="h-diff">
+    <div class="section-head">
+      <div>
+        <h2 id="h-diff">Почему прибыль вообще появится</h2>
+        <p class="sub">Не за счёт экономии, а за счёт того, что решения начинают приниматься на цифрах.</p>
+      </div>
+      <span class="section-index">02 / 05</span>
+    </div>
     <table>
       <thead><tr><th scope="col">Контур</th><th scope="col">Сейчас</th><th scope="col">С финансовым директором</th></tr></thead>
       <tbody>
@@ -313,11 +460,14 @@
     </table>
   </section>
 
-  <hr class="rule">
-
-  <section aria-labelledby="h-plan">
-    <h2 id="h-plan">Что происходит после «да»</h2>
-    <p class="sub">Первый результат — на четвёртой неделе: реальная прибыль по продуктам и каналам. Нажмите на этап, чтобы раскрыть состав работ.</p>
+  <section class="component-section" aria-labelledby="h-plan">
+    <div class="section-head">
+      <div>
+        <h2 id="h-plan">Что происходит после «да»</h2>
+        <p class="sub">Первый результат — на четвёртой неделе: реальная прибыль по продуктам и каналам.</p>
+      </div>
+      <span class="section-index">03 / 05</span>
+    </div>
 
     <div class="stage" open-state="0">
       <button type="button" aria-expanded="false"><span class="week">Недели 1–4</span> Собираем факт<span class="mark">+</span></button>
@@ -348,16 +498,19 @@
     </div>
   </section>
 
-  <hr class="rule">
+  <section class="component-section" id="tarify" aria-labelledby="h-tarify">
+    <div class="section-head">
+      <div>
+        <h2 id="h-tarify">Тарифы и окупаемость</h2>
+        <p class="sub">Все три считаются от одного и того же прироста — того, что вы собрали выше. Отличаются объёмом работы и тем, как быстро прирост начинается.</p>
+      </div>
+      <span class="section-index">04 / 05</span>
+    </div>
 
-  <section aria-labelledby="h-tarify" id="tarify">
-    <h2 id="h-tarify">Тарифы и окупаемость</h2>
-    <p class="sub">Все три считаются от одного и того же прироста прибыли — того, что вы собрали выше. Отличаются объёмом работы и тем, как быстро прирост начинается.</p>
-
-    <div class="ctl reach-ctl">
+    <div class="ctl subpanel" style="margin-bottom:22px">
       <label for="reach">Доля цели, достигнутая за год <span class="val"><span id="reach-v">100</span>%</span></label>
       <input type="range" id="reach" min="10" max="100" step="5" value="100">
-      <span class="hint">Не верите в полный результат — сдвиньте к 40–50% и посмотрите, окупается ли работа даже так. Сейчас в расчёте <span id="reach-money">1 200 000 ₽</span> прироста в месяц на полном эффекте.</span>
+      <span class="hint">Не верите в полный результат — сдвиньте к 40–50% и посмотрите, окупается ли работа даже так. Сейчас в расчёте <span class="mono" id="reach-money">1 200 000 ₽</span> прироста в месяц на полном эффекте.</span>
     </div>
 
     <div class="plans">
@@ -424,10 +577,11 @@
     </div>
   </section>
 
-  <hr class="rule">
-
-  <section aria-labelledby="h-honest">
-    <h2 id="h-honest">Почему это расчёт, а не обещание</h2>
+  <section class="component-section" aria-labelledby="h-honest">
+    <div class="section-head">
+      <div><h2 id="h-honest">Почему это расчёт, а не обещание</h2></div>
+      <span class="section-index">05 / 05</span>
+    </div>
     <ol class="honest">
       <li><b>Веса рычагов — моя оценка после часовой беседы.</b> Точное распределение появится после разбора выгрузок за 6–12 месяцев и почти наверняка окажется другим. Что не изменится: деньги в обороте 12 млн при рентабельности 30% есть.</li>
       <li><b>Прирост не берётся из воздуха.</b> Каждый пункт — конкретное решение: отключить канал, изменить цену, пересобрать мотивацию. Решения принимаете вы, я даю цифры, на которых их принимают.</li>
@@ -439,8 +593,10 @@
     <h2 id="h-cta">Начнём с фактических цифр</h2>
     <p class="picked-note" id="cta-pick" hidden></p>
     <p>Первый шаг — доступ к выгрузкам за 6 месяцев и два часа моего времени. Через четыре недели вы увидите реальную прибыль по каждому продукту и каналу. Если цифры не покажут потерь на заявленную сумму — вы теряете только эти четыре недели.</p>
-    <p><a class="btn light" href="#" id="cta-link">Назначить старт работ</a></p>
+    <p><a class="btn gold" href="#" id="cta-link">Назначить старт работ</a></p>
   </div>
+
+  <p class="footer">Коммерческое предложение · расчёт на данных диагностики · <span class="mono">1 файл · 0 зависимостей</span></p>
 
 </div>
 
@@ -451,19 +607,23 @@
   var rub = function(n){ return f0.format(Math.round(n)) + ' ₽'; };
   var $ = function(id){ return document.getElementById(id); };
 
-  // фактические вводные с диагностики (не редактируются на странице)
   var TRAFFIC = 1300000, TEAM = 15;
-
   var PLANS = [
-    {name:'Учёт и отчётность',    fee:90000,  impl:250000, ramp:6},
-    {name:'Сопровождение',        fee:150000, impl:400000, ramp:4},
-    {name:'Финансовый директор',  fee:250000, impl:0,      ramp:3}
+    {name:'Учёт и отчётность',   fee:90000,  impl:250000, ramp:6},
+    {name:'Сопровождение',       fee:150000, impl:400000, ramp:4},
+    {name:'Финансовый директор', fee:250000, impl:0,      ramp:3}
   ];
-  var PLAN_COLORS = ['#5B6B7A', '#1F3FBF', '#16202B'];
+  var PLAN_COLORS = ['#8ea3ba', '#e0c790', '#a2cff4'];
   var LEVER_DEFAULTS = [3, 2.5, 3, 1.5];
 
   var els = {revenue:$('revenue'), margin:$('margin'), reach:$('reach')};
   var levers = [$('l1'), $('l2'), $('l3'), $('l4')];
+
+  function paintRange(el){
+    var min = Number(el.min), max = Number(el.max), v = Number(el.value);
+    var pct = max > min ? (v - min) / (max - min) * 100 : 0;
+    el.style.setProperty('--range-fill', pct.toFixed(1) + '%');
+  }
 
   function calc(){
     var rev = Math.max(0, Number(els.revenue.value) || 0);
@@ -472,6 +632,8 @@
     var pp = rev / 100;
     var sum = levers.reduce(function(a, el){ return a + Number(el.value); }, 0);
 
+    [els.margin, els.reach].concat(levers).forEach(paintRange);
+
     $('margin-v').textContent = mg;
     $('pp-value').textContent = f0.format(Math.round(pp));
 
@@ -479,16 +641,15 @@
       var v = Number(el.value), money = v * pp, txt;
       $('l' + (i+1) + '-v').textContent = f1.format(v);
       if (v === 0) txt = 'рычаг выключен';
-      else if (i === 0) txt = '+' + rub(money) + ' в месяц — это снизить расход на трафик на ' + f1.format(money / TRAFFIC * 100) + '% при той же выручке';
-      else if (i === 1) txt = '+' + rub(money) + ' в месяц — это ' + rub(money / TEAM) + ' на каждого из ' + TEAM + ' в команде';
-      else if (i === 2) txt = '+' + rub(money) + ' в месяц — это ' + f1.format(v) + '% к марже продаж при том же обороте';
-      else txt = '+' + rub(money) + ' в месяц — это ' + rub(money * 12) + ' прочих расходов за год';
+      else if (i === 0) txt = '+' + rub(money) + ' в месяц — снизить расход на трафик на ' + f1.format(money / TRAFFIC * 100) + '% при той же выручке';
+      else if (i === 1) txt = '+' + rub(money) + ' в месяц — ' + rub(money / TEAM) + ' на каждого из ' + TEAM + ' в команде';
+      else if (i === 2) txt = '+' + rub(money) + ' в месяц — ' + f1.format(v) + '% к марже продаж при том же обороте';
+      else txt = '+' + rub(money) + ' в месяц — ' + rub(money * 12) + ' прочих расходов за год';
       $('l' + (i+1) + '-m').textContent = txt;
     });
 
     var profitNow = rev * mg / 100;
-    var gapMonth = sum * pp;
-    var gain = gapMonth * reach;
+    var gain = sum * pp * reach;
     var profitNew = profitNow + gain;
 
     $('t-profit').textContent = rub(profitNew);
@@ -503,11 +664,11 @@
     if (gain <= 0){
       bridge.innerHTML = '<b>Все рычаги выключены.</b> Подвиньте хотя бы один — иначе оплачивать работу нечем, и это честный ответ модели.';
     } else if (Math.abs(mg + sum - 40) < 0.01){
-      bridge.innerHTML = '<b>' + rub(gain) + ' в месяц</b> — это источник, из которого оплачивается вся работа ниже, и он остаётся у вас после её окончания.';
+      bridge.innerHTML = '<b>' + rub(gain) + ' в месяц</b> — источник, из которого оплачивается вся работа ниже, и он остаётся у вас после её окончания.';
     } else if (mg + sum < 40){
       bridge.innerHTML = '<b>' + rub(gain) + ' в месяц.</b> До цели в 40% не хватает ' + f1.format(40 - mg - sum) + ' п.п. — их ищем в первые четыре недели по факту, а не по оценке.';
     } else {
-      bridge.innerHTML = '<b>' + rub(gain) + ' в месяц</b> — это выше заявленной цели в 40%. Такой сценарий стоит проверять на данных, прежде чем закладывать в план.';
+      bridge.innerHTML = '<b>' + rub(gain) + ' в месяц</b> — выше заявленной цели в 40%. Такой сценарий стоит проверять на данных, прежде чем закладывать в план.';
     }
 
     var results = PLANS.map(function(pl){ return scenario(gain, pl.fee, pl.impl, pl.ramp, 12); });
@@ -519,7 +680,6 @@
     drawPlans(results);
   }
 
-  // помесячная модель: прирост нарастает от нуля до полного к месяцу ramp
   function scenario(gainFull, fee, impl, ramp, horizon){
     var months = [], cumGain = 0, cumCost = 0, be = null, share, m;
     for (m = 1; m <= horizon; m++){
@@ -549,7 +709,7 @@
       svg += '<polyline class="pline pline-' + i + '" points="' + r.months.map(function(p){ return x(p.m) + ',' + y(p.net); }).join(' ') + '"/>';
       if (r.be){
         var p = r.months[r.be - 1];
-        svg += '<circle cx="' + x(p.m) + '" cy="' + y(p.net) + '" r="3.5" style="fill:' + PLAN_COLORS[i] + '"/>';
+        svg += '<circle cx="' + x(p.m) + '" cy="' + y(p.net) + '" r="4" style="fill:' + PLAN_COLORS[i] + '"/>';
       }
     });
     for (var m = 1; m <= N; m++){

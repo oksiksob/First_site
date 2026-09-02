@@ -1,2935 +1,606 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NEON//KIT — витрина UI-компонентов</title>
-
-<!-- Шрифты без засечек: Inter для текста, JetBrains Mono для технических подписей и цифр -->
+<title>Коммерческое предложение — финансовый директор для онлайн-школы</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;800&family=Spectral:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   1. ТОКЕНЫ ДИЗАЙН-СИСТЕМЫ
-   Все цвета, радиусы, тайминги и уровни свечения объявлены
-   один раз здесь и переиспользуются во всех правилах ниже.
-   ============================================================ */
-:root {
-  /* Поверхности */
-  --bg:            #0d0d0d;   /* фон страницы — очень тёмный графит */
-  --surface:       #131313;   /* панели секций */
-  --surface-2:     #191919;   /* поля ввода, вложенные блоки */
-  --elevated:      #1c1c1c;   /* модальное окно, мобильное меню */
-
-  /* Неон */
-  --neon:          #00ff9d;   /* основной акцент */
-  --neon-dim:      #00b370;   /* приглушённый акцент */
-  --neon-soft:     rgba(0, 255, 157, 0.10);
-  --border:        rgba(0, 255, 157, 0.16);  /* тонкая неоновая граница в покое */
-  --border-strong: rgba(0, 255, 157, 0.45);
-
-  /* Текст */
-  --text:          #e6f3ec;
-  --muted:         #7c8b83;
-  --dim:           #4d5a53;
-  --danger:        #ff3b5c;
-
-  /* Свечение — три уровня интенсивности */
-  --glow-sm: 0 0 10px rgba(0, 255, 157, 0.30);
-  --glow-md: 0 0 18px rgba(0, 255, 157, 0.45), 0 0 40px rgba(0, 255, 157, 0.16);
-  --glow-lg: 0 0 26px rgba(0, 255, 157, 0.60), 0 0 70px rgba(0, 255, 157, 0.22);
-  --glow-danger: 0 0 14px rgba(255, 59, 92, 0.45);
-
-  /* Геометрия */
-  --radius:       15px;   /* базовое скругление по дизайн-коду */
-  --radius-sm:    10px;
-  --radius-full:  999px;
-
-  /* Тайминги: разные по природе движения — разной длительности */
-  --t-instant: 130ms cubic-bezier(.4, 0, 1, 1);
-  --t-fast:    220ms cubic-bezier(.2, 0, .2, 1);
-  --t-medium:  380ms cubic-bezier(.16, 1, .3, 1);
-
-  /* Шрифты */
-  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
-}
-
-/* ============================================================
-   2. БАЗОВЫЕ СТИЛИ
-   ============================================================ */
-*, *::before, *::after { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  /* Мягкие неоновые пятна на фоне — дают глубину под полупрозрачными панелями */
-  background-image:
-    radial-gradient(600px circle at 15% 0%,   rgba(0, 255, 157, 0.07), transparent 60%),
-    radial-gradient(500px circle at 85% 30%,  rgba(0, 255, 157, 0.05), transparent 60%);
-  background-attachment: fixed;
-}
-
-h1, h2, h3 { margin: 0; line-height: 1.15; }
-
-/* Единый видимый фокус для всей страницы — обязателен для клавиатурной навигации */
-:focus-visible {
-  outline: 2px solid var(--neon);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-.container {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-/* Техническая подпись — моноширинная, разрежённая, приглушённая */
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
-
-/* ============================================================
-   3. БЛОК 6 — ВЕРХНЕЕ МЕНЮ
-   Sticky-панель с анимированным подчёркиванием пунктов.
-   На мобильных превращается в бургер.
-   ============================================================ */
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(13, 13, 13, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border);
-}
-
-.navbar__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 64px;
-}
-
-.navbar__logo {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 17px;
-  letter-spacing: .08em;
-  color: var(--neon);
-  text-shadow: var(--glow-sm);
-}
-
-.navbar__links {
-  display: flex;
-  gap: 30px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* Пункт меню: подчёркивание раскрывается слева направо через scaleX */
-.navbar__link {
-  position: relative;
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 14px;
-  padding: 4px 0;
-  transition: color var(--t-instant);
-}
-.navbar__link::after {
-  content: '';
-  position: absolute;
-  left: 0; bottom: 0;
-  width: 100%; height: 1px;
-  background: var(--neon);
-  box-shadow: var(--glow-sm);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--t-fast);
-}
-.navbar__link:hover,
-.navbar__link:focus-visible { color: var(--neon); }
-.navbar__link:hover::after,
-.navbar__link:focus-visible::after { transform: scaleX(1); }
-
-/* Кнопка-бургер: три линии, складывающиеся в крестик */
-.burger {
-  display: none;
-  width: 44px; height: 44px;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  padding: 0;
-  position: relative;
-}
-.burger__line {
-  position: absolute;
-  left: 50%; top: 50%;
-  width: 20px; height: 2px;
-  margin-left: -10px;
-  background: var(--neon);
-  border-radius: 2px;
-  transition: transform var(--t-medium), opacity var(--t-fast);
-}
-.burger__line:nth-child(1) { transform: translateY(-7px); }
-.burger__line:nth-child(2) { transform: translateY(0); }
-.burger__line:nth-child(3) { transform: translateY(7px); }
-.burger[aria-expanded="true"] .burger__line:nth-child(1) { transform: rotate(45deg); }
-.burger[aria-expanded="true"] .burger__line:nth-child(2) { opacity: 0; }
-.burger[aria-expanded="true"] .burger__line:nth-child(3) { transform: rotate(-45deg); }
-
-/* Выпадающая панель мобильного меню */
-.mobile-menu {
-  display: none;
-  position: fixed;
-  top: 64px; left: 0; right: 0;
-  z-index: 110;
-  background: var(--elevated);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 20px 24px;
-  opacity: 0;
-  transform: translateY(-12px);
-  transition: opacity var(--t-medium), transform var(--t-medium);
-}
-.mobile-menu.is-open { opacity: 1; transform: translateY(0); }
-.mobile-menu a {
-  display: block;
-  padding: 14px 4px;
-  color: var(--text);
-  text-decoration: none;
-  font-size: 17px;
-  border-bottom: 1px solid rgba(255,255,255,.05);
-}
-.mobile-menu a:hover { color: var(--neon); }
-
-/* ============================================================
-   4. HERO + БЛОК 9 — ПРОГРЕСС-БАР
-   ============================================================ */
-.hero { padding: 70px 0 50px; }
-
-/* Первый экран: текст слева, изображение справа.
-   На мобильных обе колонки схлопываются в одну (см. блок 14). */
-.hero__inner {
-  display: grid;
-  grid-template-columns: 1.05fr .95fr;
-  gap: 50px;
-  align-items: center;
-}
-
-.hero__media { position: relative; }
-
-/* Мягкое неоновое пятно под изображением — даёт ему свечение по краю */
-.hero__media::before {
-  content: '';
-  position: absolute;
-  inset: 8%;
-  background: var(--neon);
-  filter: blur(60px);
-  opacity: .18;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.hero__media img {
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius);
-  border: 1px solid var(--border-strong);
-  box-shadow: var(--glow-md);
-}
-
-.hero h1 {
-  font-size: clamp(30px, 6vw, 54px);
-  font-weight: 700;
-  letter-spacing: -.02em;
-  margin: 14px 0 12px;
-}
-.hero h1 span { color: var(--neon); text-shadow: var(--glow-md); }
-.hero p { color: var(--muted); max-width: 560px; margin: 0 0 30px; }
-
-/* Дорожка прогресс-бара */
-.progress {
-  max-width: 460px;
-}
-.progress__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 10px;
-}
-.progress__value {
-  font-family: var(--font-mono);
-  font-size: 15px;
-  color: var(--neon);
-  font-variant-numeric: tabular-nums; /* цифры не «прыгают» при смене разрядности */
-}
-.progress__track {
-  height: 8px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-}
-/* Заполнение идёт через scaleX — дешевле для браузера, чем анимация width */
-.progress__fill {
-  height: 100%;
-  width: 100%;
-  transform: scaleX(0);
-  transform-origin: left;
-  border-radius: var(--radius-full);
-  background: linear-gradient(90deg, var(--neon-dim), var(--neon));
-  box-shadow: var(--glow-sm);
-}
-.progress__fill.is-done { box-shadow: var(--glow-lg); }
-
-/* ============================================================
-   5. КАРУСЕЛЬ (второй экран)
-   Активная карточка по центру, соседние выглядывают по краям.
-   Лента сдвигается через transform: translateX — браузер
-   обрабатывает это на композитном слое, без пересчёта раскладки.
-   ============================================================ */
-.carousel-section {
-  padding: 10px 0 60px;
-  /* Ширина одной карточки и зазор между ними. Эти же значения
-     используются для расчёта позиции боковых стрелок. */
-  --slide-w: 62%;
-  --slide-gap: 20px;
-  --arrow-out: 54px;   /* насколько стрелка вынесена за край карточки */
-}
-
-.carousel__head {
-  margin-bottom: 20px;
-  text-align: center;   /* заголовок выровнен по центру карточки */
-}
-.carousel__head h2 { font-size: 24px; font-weight: 700; margin-top: 6px; }
-
-/* Сцена — система координат для боковых стрелок */
-.carousel__stage { position: relative; }
-
-/* Окно, обрезающее ленту. Вертикальные отступы компенсируют
-   свечение карточки, чтобы оно не срезалось краем. */
-.carousel__viewport {
-  overflow: hidden;
-  padding: 14px 0;
-  margin: -14px 0;
-}
-
-.carousel__track {
-  display: flex;
-  align-items: stretch;
-  gap: var(--slide-gap);
-  transition: transform 520ms cubic-bezier(.16, 1, .3, 1);
-  will-change: transform;
-}
-
-/* Слайд занимает фиксированную долю ширины окна — остальное
-   место отдано соседям, которые видны по краям. */
-.carousel__slide {
-  flex: 0 0 var(--slide-w);
-  min-width: 0;
-  display: flex;
-}
-
-/* Неактивные слайды приглушены и чуть уменьшены */
-.carousel__slide .slide {
-  opacity: .32;
-  transform: scale(.94);
-  cursor: pointer;
-  transition: opacity 520ms cubic-bezier(.16, 1, .3, 1),
-              transform 520ms cubic-bezier(.16, 1, .3, 1),
-              border-color var(--t-fast), box-shadow var(--t-fast);
-}
-.carousel__slide.is-active .slide {
-  opacity: 1;
-  transform: scale(1);
-  cursor: default;
-  border-color: var(--border-strong);
-  box-shadow: var(--glow-sm);
-}
-/* Клик по боковой карточке переводит на неё */
-.carousel__slide:not(.is-active) .slide:hover { opacity: .5; }
-
-/* --- Карточка слайда --- */
-.slide {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  min-height: 250px;
-  padding: 34px 36px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-/* Неоновый отсвет в правом верхнем углу */
-.slide::before {
-  content: '';
-  position: absolute;
-  top: -90px; right: -70px;
-  width: 280px; height: 280px;
-  background: var(--neon);
-  filter: blur(90px);
-  opacity: .13;
-  pointer-events: none;
-}
-/* Крупный полупрозрачный номер — визуальный якорь слайда */
-.slide__num {
-  position: absolute;
-  top: 14px; right: 26px;
-  font-family: var(--font-mono);
-  font-size: 76px;
-  font-weight: 700;
-  line-height: 1;
-  color: rgba(0, 255, 157, .07);
-  pointer-events: none;
-  user-select: none;
-}
-.slide__title {
-  position: relative;
-  font-size: 25px;
-  font-weight: 700;
-  margin: 10px 0 10px;
-  max-width: 520px;
-}
-.slide__text {
-  position: relative;
-  color: var(--muted);
-  margin: 0 0 20px;
-  max-width: 500px;
-}
-.slide__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 22px;
-  padding: 0;
-  list-style: none;
-}
-.slide__tags li {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--neon);
-  background: var(--neon-soft);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  padding: 5px 11px;
-}
-.slide__link { margin-top: auto; text-decoration: none; }
-
-/* --- Боковые стрелки ---
-   Позиция считается от края активной карточки: половина
-   свободного места по бокам минус вынос стрелки наружу. */
-.arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  width: 44px; height: 44px;
-  display: grid;
-  place-items: center;
-  background: var(--elevated);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  color: var(--neon);
-  cursor: pointer;
-  transition: background var(--t-instant), box-shadow var(--t-instant),
-              transform var(--t-instant), border-color var(--t-instant);
-}
-.arrow--prev { left:  calc((100% - var(--slide-w)) / 2 - var(--arrow-out)); }
-.arrow--next { right: calc((100% - var(--slide-w)) / 2 - var(--arrow-out)); }
-
-.arrow:hover {
-  background: var(--neon-soft);
-  box-shadow: var(--glow-md);
-}
-.arrow:active { transform: translateY(-50%) scale(.92); }
-.arrow svg { width: 18px; height: 18px; }
-
-/* --- Точки-индикаторы под каруселью --- */
-.carousel__dots {
-  display: flex;
-  justify-content: center;
-  gap: 9px;
-  margin: 22px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.dot {
-  width: 28px; height: 28px;   /* зона нажатия больше видимой точки */
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-}
-.dot::after {
-  content: '';
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: #2c2c2c;
-  transition: background var(--t-fast), box-shadow var(--t-fast),
-              width var(--t-fast), border-radius var(--t-fast);
-}
-.dot[aria-current="true"]::after {
-  width: 24px;
-  border-radius: var(--radius-full);
-  background: var(--neon);
-  box-shadow: var(--glow-sm);
-}
-.dot:hover::after { background: var(--neon-dim); }
-
-/* ============================================================
-   6. ВИДЕО (третий экран)
-   Плеер Kinescope во встроенном фрейме. Пропорции держит
-   aspect-ratio, поэтому место под плеер занято сразу и
-   вёрстка не прыгает, пока фрейм грузится.
-   ============================================================ */
-.video-section { padding: 10px 0 60px; }
-
-.video__head {
-  margin-bottom: 22px;
-  text-align: center;
-}
-.video__head h2 { font-size: 24px; font-weight: 700; margin-top: 6px; }
-.video__head p {
-  color: var(--muted);
-  max-width: 520px;
-  margin: 10px auto 0;
-}
-
-.video__frame {
-  position: relative;
-  max-width: 900px;
-  margin: 0 auto;
-  aspect-ratio: 16 / 9;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  overflow: hidden;             /* скругление применяется и к фрейму внутри */
-  box-shadow: var(--glow-md);
-  background: #000;
-}
-/* Мягкое неоновое пятно под плеером */
-.video__frame::before {
-  content: '';
-  position: absolute;
-  inset: 10%;
-  background: var(--neon);
-  filter: blur(70px);
-  opacity: .16;
-  z-index: -1;
-  pointer-events: none;
-}
-.video__frame iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  display: block;
-}
-
-/* ============================================================
-   7. КАЛЬКУЛЯТОР МАКСИМАЛЬНОЙ СКИДКИ
-   Слева ввод, справа результат. На мобильных — одна колонка.
-   ============================================================ */
-.calc-section { padding: 10px 0 60px; }
-
-.calc__head { margin-bottom: 22px; text-align: center; }
-.calc__head h2 { font-size: 24px; font-weight: 700; margin-top: 6px; }
-.calc__head > p {
-  color: var(--muted);
-  max-width: 560px;
-  margin: 10px auto 0;
-}
-
-.calc {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 26px;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 30px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-/* --- Левая колонка: ввод --- */
-.calc__form { display: flex; flex-direction: column; gap: 16px; }
-
-.calc__field { display: flex; flex-direction: column; gap: 7px; }
-.calc__field label { cursor: pointer; }
-
-.calc__input-wrap { position: relative; }
-
-/* Переопределяем отступы базового поля: здесь лейбл стоит сверху,
-   а не плавает внутри, поэтому текст центрируется по высоте. */
-.calc__input {
-  padding: 0 46px 0 14px;
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-}
-/* Единица измерения в правой части поля */
-.calc__unit {
-  position: absolute;
-  right: 14px; top: 50%;
-  transform: translateY(-50%);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--dim);
-  pointer-events: none;
-}
-
-.calc__error {
-  margin: 0;
-  font-size: 12.5px;
-  color: var(--danger);
-}
-
-.calc__hint {
-  margin: 2px 0 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--dim);
-}
-
-/* --- Правая колонка: результат --- */
-.calc__results { display: flex; flex-direction: column; gap: 12px; }
-
-.calc__tile {
-  background: var(--surface-2);
-  border: 1px solid rgba(255, 255, 255, .06);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-}
-/* Главный показатель выделен неоном */
-.calc__tile--accent {
-  border-color: var(--border-strong);
-  background: var(--neon-soft);
-  box-shadow: var(--glow-sm);
-}
-.calc__value {
-  display: block;
-  margin-top: 6px;
-  font-family: var(--font-mono);
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.15;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-}
-.calc__tile--accent .calc__value {
-  color: var(--neon);
-  text-shadow: var(--glow-sm);
-}
-.calc__sub {
-  display: block;
-  margin-top: 4px;
-  font-size: 12.5px;
-  color: var(--muted);
-}
-
-/* Пока расчёта не было — значения приглушены */
-.calc__results.is-empty .calc__value { color: var(--dim); text-shadow: none; }
-.calc__results.is-empty .calc__tile--accent {
-  background: var(--surface-2);
-  border-color: rgba(255, 255, 255, .06);
-  box-shadow: none;
-}
-
-/* Строка состояния: нейтральная, успешная или предупреждающая */
-.calc__status {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: auto;
-  padding: 13px 15px;
-  border-radius: var(--radius);
-  border: 1px solid rgba(255, 255, 255, .07);
-  background: var(--surface-2);
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--muted);
-}
-.calc__status b { display: block; color: var(--text); margin-bottom: 2px; }
-
-.calc__status--ok {
-  border-color: var(--border-strong);
-  background: var(--neon-soft);
-  color: var(--text);
-}
-.calc__status--ok b { color: var(--neon); }
-
-.calc__status--warn {
-  border-color: var(--danger);
-  background: rgba(255, 59, 92, .10);
-  color: #ffd7de;
-}
-.calc__status--warn b { color: var(--danger); }
-
-.calc__status svg { width: 17px; height: 17px; flex: 0 0 auto; margin-top: 1px; }
-
-/* Кнопка копирования значения в буфер обмена */
-.calc__tile-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.calc__copy {
-  width: 28px; height: 28px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  background: none;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  color: var(--dim);
-  cursor: pointer;
-  transition: color var(--t-instant), border-color var(--t-instant), background var(--t-instant);
-}
-.calc__copy:hover { color: var(--neon); border-color: var(--border); background: var(--neon-soft); }
-.calc__copy svg { width: 15px; height: 15px; }
-.calc__results.is-empty .calc__copy { visibility: hidden; }
-
-/* --- Примерка конкретной скидки --- */
-.calc__try {
-  grid-column: 1 / -1;          /* растягиваем на обе колонки */
-  border-top: 1px solid rgba(255, 255, 255, .07);
-  padding-top: 22px;
-}
-.calc__try-note {
-  margin: 0 0 14px;
-  font-size: 12.5px;
-  color: var(--dim);
-}
-/* Значения меняют цвет, когда скидка выходит за допустимый предел */
-.calc__try.is-over .slider__value { color: var(--danger); text-shadow: none; }
-.calc__try.is-over .calc__try-out b { color: var(--danger); }
-
-.calc__try-out {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 18px;
-}
-.calc__try-out > div {
-  background: var(--surface-2);
-  border: 1px solid rgba(255, 255, 255, .06);
-  border-radius: var(--radius);
-  padding: 13px 15px;
-}
-.calc__try-out b {
-  display: block;
-  margin-top: 5px;
-  font-family: var(--font-mono);
-  font-size: 18px;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-  transition: color var(--t-fast);
-}
-
-/* --- Разбор расчёта --- */
-.calc__explain {
-  grid-column: 1 / -1;
-  border-top: 1px solid rgba(255, 255, 255, .07);
-  padding-top: 20px;
-}
-.calc__explain summary {
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--neon);
-}
-.calc__explain summary::-webkit-details-marker { display: none; }
-/* Треугольник-указатель, поворачивающийся при раскрытии */
-.calc__explain summary::before {
-  content: '';
-  width: 0; height: 0;
-  border-left: 5px solid currentColor;
-  border-top: 4px solid transparent;
-  border-bottom: 4px solid transparent;
-  transition: transform var(--t-fast);
-}
-.calc__explain[open] summary::before { transform: rotate(90deg); }
-
-.calc__steps {
-  margin: 16px 0 0;
-  padding-left: 20px;
-  color: var(--muted);
-  font-size: 13.5px;
-  line-height: 1.65;
-}
-.calc__steps li { margin-bottom: 12px; }
-.calc__steps li::marker { color: var(--neon); font-family: var(--font-mono); }
-.calc__steps b { color: var(--text); font-weight: 700; }
-/* Подстановка чисел в формулу — моноширинным, чтобы читалась как расчёт */
-.calc__steps code {
-  display: inline-block;
-  margin-top: 4px;
-  padding: 3px 8px;
-  background: var(--surface-2);
-  border: 1px solid rgba(255, 255, 255, .07);
-  border-radius: 7px;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  color: var(--neon);
-  white-space: nowrap;
-}
-/* Вывод простыми словами */
-.calc__plain {
-  margin: 14px 0 0;
-  padding: 13px 15px;
-  background: var(--neon-soft);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: var(--text);
-}
-
-/* --- Скрипты для клиента --- */
-.calc__scripts {
-  grid-column: 1 / -1;
-  border-top: 1px solid rgba(255, 255, 255, .07);
-  padding-top: 22px;
-}
-.calc__scripts-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.calc__scripts-note { font-size: 12.5px; color: var(--dim); }
-
-.calc__scripts-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-.script {
-  display: flex;
-  flex-direction: column;
-  background: var(--surface-2);
-  border: 1px solid rgba(255, 255, 255, .06);
-  border-radius: var(--radius);
-  padding: 16px;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
-}
-.script:hover { border-color: var(--border-strong); box-shadow: var(--glow-sm); }
-.script__label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--neon);
-  margin-bottom: 4px;
-}
-.script__goal { font-size: 12px; color: var(--dim); margin: 0 0 12px; }
-.script__text {
-  margin: 0 0 14px;
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--text);
-  white-space: pre-line;   /* сохраняем переносы строк в шаблоне */
-  flex: 1;
-}
-.script .btn { width: 100%; min-height: 38px; font-size: 12px; }
-
-/* ============================================================
-   8. СЕТКА СЕКЦИЙ (CSS Grid)
-   auto-fit + minmax обеспечивает автоматический переход
-   в одну колонку на узких экранах.
-   ============================================================ */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
-  gap: 20px;
-  padding-bottom: 70px;
-}
-
-/* Панель секции — тонкая неоновая граница, свечение при наведении */
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 26px;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast);
-}
-.panel:hover {
-  border-color: var(--border-strong);
-  box-shadow: var(--glow-sm);
-}
-.panel__title {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 6px 0 4px;
-}
-.panel__desc {
-  color: var(--muted);
-  font-size: 13.5px;
-  margin: 0 0 22px;
-}
-
-/* Панель на всю ширину сетки — для карточек товаров */
-.panel--wide { grid-column: 1 / -1; }
-
-/* Вспомогательные раскладки внутри панелей */
-.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.stack { display: flex; flex-direction: column; gap: 16px; }
-
-/* ============================================================
-   6. БЛОК 1 — КНОПКИ
-   ============================================================ */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  min-height: 44px;             /* комфортная зона касания на тач-экранах */
-  padding: 0 20px;
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background var(--t-instant), color var(--t-instant),
-              box-shadow var(--t-instant), transform var(--t-instant),
-              border-color var(--t-instant);
-}
-
-/* Обычная (заливка неоном, тёмный текст) */
-.btn--solid {
-  background: var(--neon);
-  color: #05130d;
-  box-shadow: var(--glow-sm);
-}
-.btn--solid:hover { box-shadow: var(--glow-md); }
-
-/* Контурная */
-.btn--outline {
-  background: transparent;
-  color: var(--neon);
-  border-color: var(--border-strong);
-}
-.btn--outline:hover {
-  background: var(--neon-soft);
-  box-shadow: var(--glow-sm);
-}
-
-/* Приглушённая — для второстепенных действий */
-.btn--ghost {
-  background: transparent;
-  color: var(--muted);
-  border-color: rgba(255,255,255,.10);
-}
-.btn--ghost:hover { color: var(--text); border-color: rgba(255,255,255,.22); }
-
-/* Нажатие — лёгкое «продавливание» */
-.btn:active:not(:disabled) { transform: translateY(1px) scale(.985); }
-
-/* Заблокированная кнопка: свечение и анимации выключены полностью */
-.btn:disabled {
-  opacity: .38;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
-
-.btn__icon { width: 16px; height: 16px; flex: 0 0 auto; }
-
-/* Спиннер «загрузочной» кнопки */
-.spinner {
-  width: 15px; height: 15px;
-  border: 2px solid currentColor;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ============================================================
-   7. БЛОК 2 — ПОЛЯ ВВОДА
-   ============================================================ */
-.field { position: relative; }
-
-.input {
-  width: 100%;
-  height: 52px;
-  padding: 18px 14px 4px;      /* верхний отступ освобождает место плавающему лейблу */
-  background: var(--surface-2);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 16px;             /* 16px и больше — иначе Safari iOS зумит страницу при фокусе */
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
-}
-.input:focus {
-  outline: none;
-  border-color: var(--neon);
-  box-shadow: var(--glow-sm);
-}
-
-/* Плавающий лейбл: в покое лежит по центру поля, при фокусе или
-   при заполненном поле уезжает наверх и уменьшается. */
-.field__label {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  font-size: 15px;
-  pointer-events: none;
-  transition: transform var(--t-fast), font-size var(--t-fast), color var(--t-fast);
-}
-/* :placeholder-shown = поле пустое. Условие «не пустое ИЛИ в фокусе» поднимает лейбл. */
-.input:focus + .field__label,
-.input:not(:placeholder-shown) + .field__label {
-  transform: translateY(-22px);
-  font-size: 11px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  font-family: var(--font-mono);
-  color: var(--neon);
-}
-
-/* Поле поиска с иконкой слева */
-.field--search .input { padding: 0 14px 0 44px; }
-.field__icon {
-  position: absolute;
-  left: 15px; top: 50%;
-  transform: translateY(-50%);
-  width: 17px; height: 17px;
-  color: var(--muted);
-  pointer-events: none;
-  transition: color var(--t-fast);
-}
-.field--search .input:focus ~ .field__icon { color: var(--neon); }
-
-/* Состояние ошибки для полей формы */
-.input.is-invalid {
-  border-color: var(--danger);
-  box-shadow: var(--glow-danger);
-}
-
-/* Автозаполнение браузера перекрашивает фон в белый — гасим это */
-.input:-webkit-autofill,
-.input:-webkit-autofill:focus {
-  -webkit-box-shadow: inset 0 0 0 1000px var(--surface-2);
-  -webkit-text-fill-color: var(--text);
-}
-
-/* ============================================================
-   8. БЛОК 4 — ПЕРЕКЛЮЧАТЕЛИ И ЧЕКБОКСЫ
-   Нативный input не удаляется, а скрывается визуально —
-   иначе ломается работа с клавиатуры.
-   ============================================================ */
-.control {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  user-select: none;
-}
-.control input {
-  position: absolute;
-  opacity: 0;
-  width: 0; height: 0;
-}
-.control__text { font-size: 14px; }
-.control input:disabled ~ .control__text { color: var(--dim); }
-.control:has(input:disabled) { cursor: not-allowed; opacity: .5; }
-
-/* --- Toggle switch --- */
-.toggle {
-  width: 46px; height: 26px;
-  flex: 0 0 auto;
-  background: var(--surface-2);
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: var(--radius-full);
-  position: relative;
-  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
-}
-.toggle::after {
-  content: '';
-  position: absolute;
-  top: 3px; left: 3px;
-  width: 18px; height: 18px;
-  background: var(--dim);
-  border-radius: 50%;
-  transition: transform var(--t-fast), background var(--t-fast);
-}
-.control input:checked ~ .toggle {
-  background: var(--neon-soft);
-  border-color: var(--neon);
-  box-shadow: var(--glow-sm);
-}
-.control input:checked ~ .toggle::after {
-  transform: translateX(20px);
-  background: var(--neon);
-}
-.control input:focus-visible ~ .toggle {
-  outline: 2px solid var(--neon);
-  outline-offset: 3px;
-}
-
-/* --- Кастомный чекбокс --- */
-.checkbox {
-  width: 22px; height: 22px;
-  flex: 0 0 auto;
-  background: var(--surface-2);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 7px;
-  position: relative;
-  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
-}
-/* Галочка нарисована двумя гранями повёрнутого прямоугольника */
-.checkbox::after {
-  content: '';
-  position: absolute;
-  left: 7px; top: 3px;
-  width: 5px; height: 10px;
-  border: solid var(--neon);
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg) scale(0);
-  transition: transform var(--t-fast);
-}
-.control input:checked ~ .checkbox {
-  border-color: var(--neon);
-  background: var(--neon-soft);
-  box-shadow: var(--glow-sm);
-}
-.control input:checked ~ .checkbox::after { transform: rotate(45deg) scale(1); }
-.control input:focus-visible ~ .checkbox {
-  outline: 2px solid var(--neon);
-  outline-offset: 3px;
-}
-
-/* ============================================================
-   9. БЛОК 5 — КАРТОЧКИ ТОВАРОВ
-   ============================================================ */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 18px;
-}
-.card {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
-}
-.card:hover {
-  transform: translateY(-5px);
-  border-color: var(--border-strong);
-  box-shadow: var(--glow-md);
-}
-.card__media {
-  aspect-ratio: 3 / 2;   /* держит место до загрузки картинки — вёрстка не прыгает */
-  overflow: hidden;
-  background: #0a0a0a;
-}
-.card__media img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-  filter: saturate(.55) brightness(.8);
-  transition: transform var(--t-medium), filter var(--t-medium);
-}
-.card:hover .card__media img {
-  transform: scale(1.07);
-  filter: saturate(1) brightness(1);
-}
-.card__body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-.card__title { font-size: 15px; font-weight: 700; }
-.card__text { color: var(--muted); font-size: 13px; margin: 0; flex: 1; }
-.card__price {
-  font-family: var(--font-mono);
-  color: var(--neon);
-  font-size: 17px;
-  font-weight: 700;
-}
-.card .btn { width: 100%; margin-top: 4px; }
-
-/* ============================================================
-   10. БЛОК 8 — СЛАЙДЕР (range)
-   Нативный range с полной перерисовкой. Правила для WebKit
-   и Firefox записаны отдельно — объединять их запятой нельзя,
-   браузер отбросит всё правило целиком.
-   ============================================================ */
-.slider__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 14px;
-}
-.slider__value {
-  font-family: var(--font-mono);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--neon);
-  text-shadow: var(--glow-sm);
-  font-variant-numeric: tabular-nums;
-}
-
-.range {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 22px;
-  background: transparent;
-  cursor: pointer;
-  /* --fill обновляется из JS и задаёт долю заполненной части дорожки,
-     --range-color позволяет перекрасить дорожку в красный, когда
-     значение выходит за допустимый предел */
-  --fill: 0%;
-  --range-color: var(--neon);
-}
-.range:focus { outline: none; }
-.range:focus-visible { outline: 2px solid var(--neon); outline-offset: 6px; border-radius: 4px; }
-
-/* Дорожка — WebKit */
-.range::-webkit-slider-runnable-track {
-  height: 5px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(to right,
-    var(--range-color) 0%, var(--range-color) var(--fill),
-    #262626 var(--fill), #262626 100%);
-}
-/* Дорожка — Firefox */
-.range::-moz-range-track {
-  height: 5px;
-  border-radius: var(--radius-full);
-  background: #262626;
-}
-.range::-moz-range-progress {
-  height: 5px;
-  border-radius: var(--radius-full);
-  background: var(--range-color);
-}
-
-/* Превышение допустимой скидки — дорожка краснеет */
-.calc__try.is-over .range { --range-color: var(--danger); }
-
-/* Ползунок — WebKit */
-.range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px; height: 18px;
-  margin-top: -6.5px;          /* центрирование относительно дорожки */
-  border-radius: 50%;
-  background: var(--bg);
-  border: 2px solid var(--neon);
-  box-shadow: var(--glow-sm);
-  transition: transform var(--t-instant), box-shadow var(--t-instant);
-}
-.range:hover::-webkit-slider-thumb { transform: scale(1.18); box-shadow: var(--glow-md); }
-.range:active::-webkit-slider-thumb { box-shadow: var(--glow-lg); }
-
-/* Ползунок — Firefox */
-.range::-moz-range-thumb {
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  background: var(--bg);
-  border: 2px solid var(--neon);
-  box-shadow: var(--glow-sm);
-}
-
-/* ============================================================
-   11. БЛОК 7 — МОДАЛЬНОЕ ОКНО
-   ============================================================ */
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(0, 0, 0, .76);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity var(--t-medium), visibility var(--t-medium);
-}
-.overlay.is-open { opacity: 1; visibility: visible; }
-
-/* Появление окна: opacity + scale одновременно */
-.modal {
-  width: 100%;
-  max-width: 400px;
-  background: var(--elevated);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  box-shadow: var(--glow-md);
-  padding: 30px 26px 26px;
-  text-align: center;
-  position: relative;
-  opacity: 0;
-  transform: scale(.93);
-  transition: opacity var(--t-medium), transform var(--t-medium);
-}
-.overlay.is-open .modal { opacity: 1; transform: scale(1); }
-
-.modal__close {
-  position: absolute;
-  top: 10px; right: 10px;
-  width: 40px; height: 40px;
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 22px;
-  line-height: 1;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: color var(--t-instant), background var(--t-instant);
-}
-.modal__close:hover { color: var(--neon); background: var(--neon-soft); }
-
-.modal__avatar {
-  width: 76px; height: 76px;
-  margin: 0 auto 14px;
-  border-radius: 50%;
-  border: 2px solid var(--neon);
-  box-shadow: var(--glow-md);
-  object-fit: cover;
-  display: block;
-}
-.modal__name { font-size: 20px; font-weight: 700; }
-.modal__role { color: var(--muted); font-size: 13px; margin: 4px 0 20px; }
-
-.modal__stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 22px;
-}
-.modal__stat {
-  background: var(--surface-2);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: var(--radius-sm);
-  padding: 12px 6px;
-}
-.modal__stat b {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 18px;
-  color: var(--neon);
-}
-.modal__stat span { font-size: 11px; color: var(--muted); }
-.modal__actions { display: flex; gap: 10px; }
-.modal__actions .btn { flex: 1; }
-
-/* ============================================================
-   12. TOAST-УВЕДОМЛЕНИЯ
-   ============================================================ */
-.toasts {
-  position: fixed;
-  bottom: 22px; right: 22px;
-  z-index: 300;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  pointer-events: none;
-}
-.toast {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  min-width: 250px;
-  max-width: 330px;
-  padding: 14px 16px;
-  background: var(--elevated);
-  border: 1px solid var(--neon);
-  border-left-width: 3px;
-  border-radius: var(--radius);
-  box-shadow: var(--glow-md);
-  font-size: 14px;
-  opacity: 0;
-  transform: translateX(24px);
-  transition: opacity var(--t-medium), transform var(--t-medium);
-}
-.toast.is-visible { opacity: 1; transform: translateX(0); }
-.toast--error { border-color: var(--danger); box-shadow: var(--glow-danger); }
-.toast__dot {
-  width: 8px; height: 8px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--neon);
-  box-shadow: var(--glow-sm);
-}
-.toast--error .toast__dot { background: var(--danger); box-shadow: none; }
-
-/* ============================================================
-   13. ПОДВАЛ
-   ============================================================ */
-.footer {
-  border-top: 1px solid rgba(255,255,255,.06);
-  padding: 26px 0 34px;
-  color: var(--dim);
-  font-size: 13px;
-}
-
-/* ============================================================
-   14. АДАПТИВНОСТЬ
-   На мобильных все блоки выстраиваются в одну колонку.
-   ============================================================ */
-@media (max-width: 767px) {
-  .navbar__links { display: none; }
-  .burger { display: block; }
-  .mobile-menu { display: block; }
-
-  /* Карточка шире, соседи выглядывают узкой полосой,
-     стрелки садятся ровно на край активной карточки */
-  .carousel-section { --slide-w: 80%; --slide-gap: 12px; --arrow-out: 20px; }
-  .carousel__head { margin-bottom: 16px; }
-  .slide { padding: 24px 20px; min-height: 0; }
-  .slide__num { font-size: 52px; top: 10px; right: 16px; }
-  .slide__title { font-size: 20px; }
-  .arrow { width: 40px; height: 40px; }
-  .carousel__dots { margin-top: 18px; }
-
-  .calc { grid-template-columns: 1fr; gap: 22px; padding: 22px 18px; }
-  .calc__value { font-size: 23px; }
-  .calc__try-out { grid-template-columns: 1fr; gap: 10px; }
-  .calc__try-out b { font-size: 17px; }
-  .calc__scripts-grid { grid-template-columns: 1fr; }
-  .calc__steps code { white-space: normal; }
-
-  .grid { grid-template-columns: 1fr; gap: 16px; }
-  .cards { grid-template-columns: 1fr; }
-
-  .hero { padding: 46px 0 34px; }
-  .hero__inner { grid-template-columns: 1fr; gap: 30px; }
-  .hero__media { order: -1; }   /* на узких экранах изображение идёт первым */
-  .panel { padding: 20px; }
-  .toasts { left: 16px; right: 16px; bottom: 16px; }
-  .toast { max-width: none; }
-}
-
-/* ============================================================
-   15. УВАЖЕНИЕ К СИСТЕМНОЙ НАСТРОЙКЕ «МЕНЬШЕ ДВИЖЕНИЯ»
-   Функциональность сохраняется, движение убирается.
-   ============================================================ */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-    scroll-behavior: auto !important;
+  :root{
+    --paper:#E9EDF0; --grid:#D6DEE5; --surface:#F8FAFB;
+    --ink:#16202B; --ink-soft:#5B6B7A;
+    --plan:#1F3FBF; --gap:#A8123C; --gap-soft:#F0D6DE; --hair:#C3CDD6;
+    --sans:"Golos Text","Helvetica Neue",Arial,sans-serif;
+    --serif:"Spectral",Georgia,"Times New Roman",serif;
   }
-}
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{
+    margin:0;background-color:var(--paper);
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.65;
+  }
+  .wrap{max-width:1010px;margin:0 auto;padding:0 20px 80px}
+
+  .docline{
+    display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;
+    border-bottom:1px solid var(--ink);padding:22px 0 10px;margin-bottom:40px;
+    font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);
+  }
+  .docline b{font-weight:600;color:var(--ink)}
+
+  h1{font-family:var(--sans);font-weight:800;font-size:clamp(30px,5.2vw,52px);line-height:1.05;letter-spacing:-.022em;margin:0 0 18px;max-width:17ch}
+  h1 .rub{color:var(--gap)}
+  .lede{max-width:62ch;margin:0 0 14px;font-size:18px}
+  .lede.muted{color:var(--ink-soft);font-size:16px}
+
+  h2{font-family:var(--sans);font-weight:600;font-size:clamp(21px,3vw,29px);line-height:1.2;letter-spacing:-.015em;margin:0 0 10px;max-width:24ch}
+  h3{font-family:var(--sans);font-weight:600;font-size:17px;margin:0 0 4px;letter-spacing:-.01em}
+  p{margin:0 0 14px}
+  .sub{color:var(--ink-soft);max-width:62ch;margin:0 0 26px}
+  section{margin-top:60px}
+  .rule{border:0;border-top:1px solid var(--hair);margin:60px 0 0}
+
+  /* факты */
+  .facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid var(--hair);background:var(--surface);margin:24px 0 22px}
+  .fact{padding:14px 16px;border-right:1px solid var(--hair);display:flex;flex-direction:column;gap:4px}
+  .fact:last-child{border-right:0}
+  .fk{font-family:var(--sans);font-size:12.5px;color:var(--ink-soft)}
+  .fv{font-family:var(--sans);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.3}
+  .gapfact{background:var(--gap-soft)}
+  .gapfact .fv{color:var(--gap)}
+
+  /* кнопки-ссылки */
+  .btn{
+    display:inline-block;font-family:var(--sans);font-weight:600;font-size:16px;text-decoration:none;
+    padding:13px 26px;background:var(--ink);color:var(--surface);border:1.5px solid var(--ink);
+  }
+  .btn:hover{background:var(--plan);border-color:var(--plan)}
+  .btn:focus-visible{outline:2px solid var(--plan);outline-offset:3px}
+  .btn.light{background:var(--surface);color:var(--ink);border-color:var(--surface)}
+  .btn.light:hover{background:#fff;border-color:#fff;color:var(--ink)}
+  .btnrow{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:8px}
+  .btnrow .note{font-family:var(--sans);font-size:13.5px;color:var(--ink-soft)}
+
+  /* вводные и рычаги */
+  .basics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 34px;background:var(--surface);border:1px solid var(--hair);padding:20px;margin-bottom:22px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-family:var(--sans);font-size:14.5px;font-weight:500}
+  .ctl .val{font-variant-numeric:tabular-nums;font-weight:600;font-size:16px}
+  .ctl .hint{display:block;font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);font-weight:400;margin-top:4px;line-height:1.45;max-width:48ch}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;margin:6px 0 0;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--hair)}
+  input[type=range]::-moz-range-track{height:3px;background:var(--hair)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-6.5px;border-radius:50%;background:var(--ink);border:3px solid var(--surface);box-shadow:0 0 0 1px var(--ink)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink);border:3px solid var(--surface);box-shadow:0 0 0 1px var(--ink)}
+  input[type=range]:focus-visible{outline:2px solid var(--plan);outline-offset:4px}
+  input[type=number]{font-family:var(--sans);font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;width:100%;padding:8px 10px;border:1px solid var(--hair);background:#fff;color:var(--ink);border-radius:0;margin-top:6px}
+  input[type=number]:focus-visible{outline:2px solid var(--plan);outline-offset:2px}
+
+  .scenario-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+  .ghost{all:unset;cursor:pointer;font-family:var(--sans);font-size:13.5px;font-weight:500;padding:8px 14px;border:1px solid var(--hair);color:var(--ink-soft);background:var(--surface)}
+  .ghost:hover{border-color:var(--ink);color:var(--ink)}
+  .ghost:focus-visible{outline:2px solid var(--plan);outline-offset:2px}
+
+  .levers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 34px}
+  .lever{border-top:1px solid var(--hair);padding-top:16px}
+  .lever p{font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin:6px 0 10px;max-width:44ch}
+  .lever .money{font-family:var(--sans);font-size:13.5px;color:var(--gap);font-weight:500;font-variant-numeric:tabular-nums;line-height:1.4}
+
+  /* итог */
+  .trio{display:grid;grid-template-columns:1.4fr 1fr 1fr;border:1px solid var(--hair);background:var(--surface);margin-top:30px}
+  .tcell{padding:20px;border-right:1px solid var(--hair);display:flex;flex-direction:column;gap:6px}
+  .tcell:last-child{border-right:0}
+  .tcap{font-family:var(--sans);font-size:13px;color:var(--ink-soft)}
+  .tnum{font-family:var(--sans);font-weight:800;letter-spacing:-.025em;font-variant-numeric:tabular-nums;font-size:clamp(22px,3.4vw,30px);line-height:1}
+  .tnum.lead{font-size:clamp(28px,4.6vw,42px);color:var(--plan)}
+  .tsub{font-family:var(--sans);font-size:12.5px;color:var(--ink-soft)}
+  .bridge{display:flex;flex-wrap:wrap;gap:16px;align-items:center;border-top:1px solid var(--ink);margin-top:22px;padding-top:18px}
+  .bridge p{font-family:var(--sans);font-size:15px;margin:0;max-width:46ch;color:var(--ink-soft)}
+  .bridge b{color:var(--ink);font-weight:600}
+
+  /* таблица */
+  table{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:14.5px}
+  th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--hair)}
+  thead th{font-weight:600;font-size:13.5px;color:var(--ink-soft);border-bottom:1px solid var(--ink)}
+  tbody th{font-weight:500;width:22%}
+  td.now{color:var(--gap);width:39%}
+  td.after{color:var(--ink);width:39%}
+
+  /* план */
+  .stage{border-top:1px solid var(--hair)}
+  .stage:last-of-type{border-bottom:1px solid var(--hair)}
+  .stage button{all:unset;display:flex;gap:16px;align-items:baseline;width:100%;cursor:pointer;padding:15px 0;font-family:var(--sans);font-size:16.5px;font-weight:600;letter-spacing:-.01em}
+  .stage button:focus-visible{outline:2px solid var(--plan);outline-offset:3px}
+  .stage .week{color:var(--ink-soft);font-weight:500;font-size:14px;min-width:104px}
+  .stage .mark{margin-left:auto;color:var(--ink-soft);font-weight:400;font-size:22px;line-height:1;transition:transform .2s ease}
+  .stage[open-state="1"] .mark{transform:rotate(45deg)}
+  .stage .body{display:none;padding:0 0 18px 120px}
+  .stage[open-state="1"] .body{display:block}
+  .stage ul{margin:0;padding-left:18px;font-family:var(--sans);font-size:14.5px;color:var(--ink-soft);line-height:1.6}
+  .stage li{margin-bottom:5px}
+  .stage li b{color:var(--ink);font-weight:500}
+
+  /* тарифы */
+  .reach-ctl{background:var(--surface);border:1px solid var(--hair);padding:18px 20px;margin-bottom:24px}
+  .plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--hair);background:var(--surface)}
+  .plan{padding:22px 20px;border-right:1px solid var(--hair);display:flex;flex-direction:column;position:relative}
+  .plan:last-child{border-right:0}
+  .plan.best{background:#fff;box-shadow:inset 0 3px 0 0 var(--plan)}
+  .plan .tag{position:absolute;top:-1px;right:16px;background:var(--plan);color:#fff;font-family:var(--sans);font-size:11.5px;font-weight:600;padding:3px 9px;letter-spacing:.02em}
+  .plan h3{font-size:16px;margin-bottom:10px}
+  .plan .price{font-family:var(--sans);font-size:14px;color:var(--ink-soft)}
+  .plan .price b{display:block;font-size:27px;font-weight:800;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
+  .plan .setup{font-family:var(--sans);font-size:13px;color:var(--ink-soft);margin-top:6px;padding-bottom:14px;border-bottom:1px solid var(--hair)}
+  .plan ul{margin:14px 0 18px;padding-left:16px;font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);line-height:1.5}
+  .plan li{margin-bottom:6px}
+  .planres{margin:auto 0 0;border-top:1px solid var(--ink);padding-top:12px;font-family:var(--sans)}
+  .planres > div{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:5px 0}
+  .planres dt{font-size:13px;color:var(--ink-soft)}
+  .planres dd{margin:0;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+  .plan.best .planres dd{color:var(--plan)}
+  .pick{all:unset;box-sizing:border-box;display:block;width:100%;text-align:center;cursor:pointer;margin-top:16px;padding:12px 14px;font-family:var(--sans);font-size:14.5px;font-weight:600;color:var(--ink);border:1.5px solid var(--ink);background:transparent}
+  .pick:hover{background:var(--ink);color:var(--surface)}
+  .pick:focus-visible{outline:2px solid var(--plan);outline-offset:2px}
+  .plan.best .pick{background:var(--plan);border-color:var(--plan);color:#fff}
+  .plan.best .pick:hover{background:var(--ink);border-color:var(--ink)}
+  .plan.picked{outline:2px solid var(--ink);outline-offset:-2px}
+  .plan.picked .pick{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+
+  /* график */
+  .cum{margin-top:30px;background:var(--surface);border:1px solid var(--hair);padding:20px 20px 14px}
+  .cumhead{display:flex;flex-wrap:wrap;gap:6px 26px;font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);margin-bottom:14px}
+  .cumhead .key{display:inline-block;width:22px;height:0;border-top:3px solid var(--plan);margin-right:8px;vertical-align:middle}
+  .cum svg{width:100%;height:220px;display:block}
+  .cumfoot{font-family:var(--sans);font-size:13px;color:var(--ink-soft);margin:12px 0 0;max-width:74ch}
+  .zero-line{stroke:var(--ink);stroke-width:1}
+  .axis-text{font-family:var(--sans);font-size:11px;fill:var(--ink-soft)}
+  .pline{fill:none;stroke-width:2}
+  .pline-0{stroke:var(--ink-soft)}
+  .pline-1{stroke:var(--plan);stroke-width:3}
+  .pline-2{stroke:var(--ink)}
+  .neg-band{fill:var(--gap);opacity:.07}
+
+  /* честность + финал */
+  .honest{margin:0;padding-left:20px;max-width:66ch;font-size:16px}
+  .honest li{margin-bottom:12px}
+  .honest b{font-family:var(--sans);font-size:15.5px;font-weight:600}
+  .cta{background:var(--ink);color:var(--surface);padding:34px;margin-top:60px}
+  .cta h2{color:var(--surface);max-width:20ch}
+  .cta p{color:#B9C6D2;max-width:56ch;font-size:16px}
+  .picked-note{font-family:var(--sans);font-size:15px;color:#fff;font-weight:600;border-left:3px solid var(--surface);padding-left:14px;margin:0 0 18px}
+  .fine{font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);max-width:76ch;line-height:1.55;margin-top:28px}
+
+  @media (max-width:820px){
+    .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .fact{border-bottom:1px solid var(--hair)}
+    .fact:nth-child(odd){border-right:1px solid var(--hair)}
+    .fact:nth-child(even){border-right:0}
+    .gapfact{grid-column:1 / -1;border-bottom:0}
+    .basics,.levers,.trio{grid-template-columns:minmax(0,1fr)}
+    .tcell{border-right:0;border-bottom:1px solid var(--hair)}
+    .tcell:last-child{border-bottom:0}
+    .plans{grid-template-columns:minmax(0,1fr)}
+    .plan{border-right:0;border-bottom:1px solid var(--hair)}
+    .plan:last-child{border-bottom:0}
+    .stage .body{padding-left:0}
+    .stage .week{min-width:88px}
+    .cum svg{height:190px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *{transition:none!important}
+  }
 </style>
 </head>
-
 <body>
+<div class="wrap">
 
-<!-- ==========================================================
-     БЛОК 6 — ВЕРХНЕЕ МЕНЮ
-     ========================================================== -->
-<header class="navbar">
-  <div class="container navbar__inner">
-    <a href="#" class="navbar__logo">NEON//KIT</a>
-
-    <nav>
-      <ul class="navbar__links">
-        <li><a class="navbar__link" href="#buttons">Кнопки</a></li>
-        <li><a class="navbar__link" href="#inputs">Поля</a></li>
-        <li><a class="navbar__link" href="#login">Форма</a></li>
-        <li><a class="navbar__link" href="#video">Видео</a></li>
-        <li><a class="navbar__link" href="#calc">Скидка</a></li>
-        <li><a class="navbar__link" href="#cards">Карточки</a></li>
-        <li><a class="navbar__link" href="#slider">Слайдер</a></li>
-      </ul>
-    </nav>
-
-    <button class="burger" id="burger" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobileMenu">
-      <span class="burger__line"></span>
-      <span class="burger__line"></span>
-      <span class="burger__line"></span>
-    </button>
+  <div class="docline">
+    <span>Коммерческое предложение</span>
+    <span>для <b>[имя собственника]</b>, <b>[название школы]</b></span>
+    <span>по итогам часовой диагностики</span>
+    <span>от <b>[имя финансового директора]</b></span>
   </div>
-</header>
 
-<!-- Панель мобильного меню -->
-<div class="mobile-menu" id="mobileMenu" hidden>
-  <a href="#buttons">Кнопки</a>
-  <a href="#inputs">Поля ввода</a>
-  <a href="#login">Форма входа</a>
-  <a href="#video">Видео</a>
-  <a href="#calc">Калькулятор скидки</a>
-  <a href="#cards">Карточки</a>
-  <a href="#slider">Слайдер</a>
+  <h1>Как поднять чистую прибыль на <span class="rub">1,2 млн ₽ в месяц</span>, не увеличивая рекламный бюджет</h1>
+  <p class="lede">Переход с 30% на 40% рентабельности за счёт управленческого учёта: где лежат деньги, за сколько это окупается и с чего начинаем.</p>
+
+  <div class="facts">
+    <div class="fact"><span class="fk">Оборот</span><span class="fv">12 000 000 ₽ / мес</span></div>
+    <div class="fact"><span class="fk">Трафик</span><span class="fv">1 300 000 ₽ / мес</span></div>
+    <div class="fact"><span class="fk">Команда</span><span class="fv">15 человек</span></div>
+    <div class="fact"><span class="fk">Прибыль сейчас</span><span class="fv">3 600 000 ₽ · 30%</span></div>
+    <div class="fact gapfact"><span class="fk">Не доходит до цели</span><span class="fv">1 200 000 ₽ / мес</span></div>
+  </div>
+
+  <div class="btnrow">
+    <a class="btn" href="#tarify">Смотреть тарифы и окупаемость</a>
+    <span class="note">Расчёт ниже занимает минуту</span>
+  </div>
+
+  <section aria-labelledby="h-model">
+    <h2 id="h-model">Найдите свои деньги</h2>
+    <p class="sub">Четыре рычага, где я вижу ваши десять процентных пунктов. Значения по умолчанию — моя оценка после диагностики. Обнулите и поставьте свои: цифры внизу пересчитаются.</p>
+
+    <div class="basics">
+      <div class="ctl">
+        <label for="revenue">Оборот в месяц, ₽</label>
+        <input type="number" id="revenue" value="12000000" min="1000000" max="100000000" step="100000">
+      </div>
+      <div class="ctl">
+        <label for="margin">Текущая рентабельность <span class="val"><span id="margin-v">30</span>%</span></label>
+        <input type="range" id="margin" min="0" max="60" step="1" value="30">
+        <span class="hint">Один процентный пункт при вашем обороте — это <span id="pp-value">120 000</span> ₽ в месяц.</span>
+      </div>
+    </div>
+
+    <div class="scenario-bar">
+      <button type="button" class="ghost" id="lev-zero">Обнулить и собрать самому</button>
+      <button type="button" class="ghost" id="lev-reset">Вернуть мою оценку</button>
+    </div>
+
+    <div class="levers">
+      <div class="lever">
+        <h3>Юнит-экономика каналов трафика</h3>
+        <p>1,3 млн ₽ уходят одной строкой. Считаем CAC и окупаемость когорт по каждому каналу, отключаем те, что дают выручку без прибыли.</p>
+        <label for="l1" class="ctl"><span style="font-family:var(--sans);font-size:14px">Вклад в рентабельность</span> <span class="val"><span id="l1-v">3,0</span> п.п.</span></label>
+        <input type="range" id="l1" min="0" max="6" step="0.5" value="3">
+        <div class="money" id="l1-m"></div>
+      </div>
+      <div class="lever">
+        <h3>Фонд оплаты труда и загрузка команды</h3>
+        <p>Считаем выручку и маржу на сотрудника, разделяем постоянную и переменную части, привязываем бонусы к прибыли, а не к обороту.</p>
+        <label for="l2" class="ctl"><span style="font-family:var(--sans);font-size:14px">Вклад в рентабельность</span> <span class="val"><span id="l2-v">2,5</span> п.п.</span></label>
+        <input type="range" id="l2" min="0" max="6" step="0.5" value="2.5">
+        <div class="money" id="l2-m"></div>
+      </div>
+      <div class="lever">
+        <h3>Цены, линейка и возвраты</h3>
+        <p>Маржинальность каждого продукта отдельно, с учётом рассрочек, скидок, возвратов и стоимости сопровождения. Убыточные тарифы живут в линейке годами незамеченными.</p>
+        <label for="l3" class="ctl"><span style="font-family:var(--sans);font-size:14px">Вклад в рентабельность</span> <span class="val"><span id="l3-v">3,0</span> п.п.</span></label>
+        <input type="range" id="l3" min="0" max="6" step="0.5" value="3">
+        <div class="money" id="l3-m"></div>
+      </div>
+      <div class="lever">
+        <h3>Прочие расходы, налоги, подписки</h3>
+        <p>Ревизия сервисов, подрядчиков, комиссий эквайринга и налогового режима. Самый быстрый рычаг: решения принимаются за недели.</p>
+        <label for="l4" class="ctl"><span style="font-family:var(--sans);font-size:14px">Вклад в рентабельность</span> <span class="val"><span id="l4-v">1,5</span> п.п.</span></label>
+        <input type="range" id="l4" min="0" max="6" step="0.5" value="1.5">
+        <div class="money" id="l4-m"></div>
+      </div>
+    </div>
+
+    <div class="trio" aria-live="polite">
+      <div class="tcell">
+        <span class="tcap">Новая чистая прибыль</span>
+        <span class="tnum lead" id="t-profit">4 800 000 ₽</span>
+        <span class="tsub">в месяц</span>
+      </div>
+      <div class="tcell">
+        <span class="tcap">Рентабельность</span>
+        <span class="tnum" id="t-marg">40,0%</span>
+        <span class="tsub" id="t-was">было 30%</span>
+      </div>
+      <div class="tcell">
+        <span class="tcap">Дополнительно в кассе</span>
+        <span class="tnum" id="t-extra">+1 200 000 ₽</span>
+        <span class="tsub" id="t-year">14 400 000 ₽ за год</span>
+      </div>
+    </div>
+
+    <div class="bridge">
+      <p id="bridge-text"><b>1 200 000 ₽ в месяц</b> — это источник, из которого оплачивается вся работа ниже, и он остаётся у вас после её окончания.</p>
+      <a class="btn" href="#tarify">Сколько это стоит</a>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section aria-labelledby="h-diff">
+    <h2 id="h-diff">Почему прибыль вообще появится</h2>
+    <p class="sub">Не за счёт экономии, а за счёт того, что решения начинают приниматься на цифрах.</p>
+    <table>
+      <thead><tr><th scope="col">Контур</th><th scope="col">Сейчас</th><th scope="col">С финансовым директором</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Прибыль</th><td class="now">Считается по остатку на счёте в конце месяца</td><td class="after">P&amp;L по начислению: видно, какой продукт и канал заработал</td></tr>
+        <tr><th scope="row">Трафик</th><td class="now">1,3 млн ₽ одной строкой, решения по ощущению</td><td class="after">Бюджет распределяется по CAC и окупаемости когорт</td></tr>
+        <tr><th scope="row">Деньги</th><td class="now">Кассовые разрывы обнаруживаются в день выплат</td><td class="after">Платёжный календарь на 8 недель вперёд</td></tr>
+        <tr><th scope="row">Собственник</th><td class="now">Держит финансы в голове и в таблицах</td><td class="after">Один дашборд, 30 минут в неделю, решения на цифрах</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="rule">
+
+  <section aria-labelledby="h-plan">
+    <h2 id="h-plan">Что происходит после «да»</h2>
+    <p class="sub">Первый результат — на четвёртой неделе: реальная прибыль по продуктам и каналам. Нажмите на этап, чтобы раскрыть состав работ.</p>
+
+    <div class="stage" open-state="0">
+      <button type="button" aria-expanded="false"><span class="week">Недели 1–4</span> Собираем факт<span class="mark">+</span></button>
+      <div class="body"><ul>
+        <li>Сбор и оцифровка данных за 6–12 месяцев</li>
+        <li><b>P&amp;L по начислению</b> с разбивкой по продуктам, ДДС, платёжный календарь</li>
+        <li>Юнит-экономика по каждому каналу трафика</li>
+        <li>Встреча по цифрам: что мы увидели и что это значит</li>
+      </ul></div>
+    </div>
+    <div class="stage" open-state="0">
+      <button type="button" aria-expanded="false"><span class="week">Недели 5–8</span> Находим потери<span class="mark">+</span></button>
+      <div class="body"><ul>
+        <li>Разбор убыточных продуктов, тарифов и рассрочек</li>
+        <li>Анализ ФОТ: выручка и маржа на сотрудника</li>
+        <li>Ревизия прочих расходов, подписок, комиссий, налогового режима</li>
+        <li><b>Перечень решений с оценкой в рублях</b> — вы решаете, что запускаем</li>
+      </ul></div>
+    </div>
+    <div class="stage" open-state="0">
+      <button type="button" aria-expanded="false"><span class="week">Недели 9–12</span> Ставим систему<span class="mark">+</span></button>
+      <div class="body"><ul>
+        <li>Финансовая модель и бюджет на 12 месяцев</li>
+        <li><b>Дашборд собственника</b>: прибыль, деньги, трафик, ФОТ на одном экране</li>
+        <li>Регламент и обучение сотрудника: отчётность собирается без меня</li>
+        <li>Еженедельная встреча по отклонениям план–факт</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section aria-labelledby="h-tarify" id="tarify">
+    <h2 id="h-tarify">Тарифы и окупаемость</h2>
+    <p class="sub">Все три считаются от одного и того же прироста прибыли — того, что вы собрали выше. Отличаются объёмом работы и тем, как быстро прирост начинается.</p>
+
+    <div class="ctl reach-ctl">
+      <label for="reach">Доля цели, достигнутая за год <span class="val"><span id="reach-v">100</span>%</span></label>
+      <input type="range" id="reach" min="10" max="100" step="5" value="100">
+      <span class="hint">Не верите в полный результат — сдвиньте к 40–50% и посмотрите, окупается ли работа даже так. Сейчас в расчёте <span id="reach-money">1 200 000 ₽</span> прироста в месяц на полном эффекте.</span>
+    </div>
+
+    <div class="plans">
+      <div class="plan" data-plan="0">
+        <h3>Учёт и отчётность</h3>
+        <div class="price"><b>90 000 ₽</b> в месяц</div>
+        <div class="setup">Внедрение 250 000 ₽ разово</div>
+        <ul>
+          <li>P&amp;L и ДДС по начислению</li>
+          <li>Платёжный календарь</li>
+          <li>Отчёт и разбор раз в месяц</li>
+          <li>Полный эффект — с 6-го месяца</li>
+        </ul>
+        <dl class="planres">
+          <div><dt>В плюс с</dt><dd id="p0-be">—</dd></div>
+          <div><dt>Чистыми за год</dt><dd id="p0-net">—</dd></div>
+          <div><dt>Возврат на рубль</dt><dd id="p0-x">—</dd></div>
+        </dl>
+        <button type="button" class="pick" data-plan="0">Выбираю «Учёт и отчётность»</button>
+      </div>
+
+      <div class="plan best" data-plan="1">
+        <span class="tag">рекомендую</span>
+        <h3>Сопровождение</h3>
+        <div class="price"><b>150 000 ₽</b> в месяц</div>
+        <div class="setup">Внедрение 400 000 ₽ разово</div>
+        <ul>
+          <li>Всё из первого тарифа</li>
+          <li>Юнит-экономика каналов трафика</li>
+          <li>Бюджет, план–факт, дашборд собственника</li>
+          <li>Встреча раз в неделю. Полный эффект — с 4-го месяца</li>
+        </ul>
+        <dl class="planres">
+          <div><dt>В плюс с</dt><dd id="p1-be">—</dd></div>
+          <div><dt>Чистыми за год</dt><dd id="p1-net">—</dd></div>
+          <div><dt>Возврат на рубль</dt><dd id="p1-x">—</dd></div>
+        </dl>
+        <button type="button" class="pick" data-plan="1">Выбираю «Сопровождение»</button>
+      </div>
+
+      <div class="plan" data-plan="2">
+        <h3>Финансовый директор</h3>
+        <div class="price"><b>250 000 ₽</b> в месяц</div>
+        <div class="setup">Внедрение включено в стоимость</div>
+        <ul>
+          <li>Всё из второго тарифа</li>
+          <li>Участие в решениях по продуктам и трафику</li>
+          <li>Финмодель, система мотивации команды</li>
+          <li>Полный эффект — с 3-го месяца</li>
+        </ul>
+        <dl class="planres">
+          <div><dt>В плюс с</dt><dd id="p2-be">—</dd></div>
+          <div><dt>Чистыми за год</dt><dd id="p2-net">—</dd></div>
+          <div><dt>Возврат на рубль</dt><dd id="p2-x">—</dd></div>
+        </dl>
+        <button type="button" class="pick" data-plan="2">Выбираю «Финансовый директор»</button>
+      </div>
+    </div>
+
+    <div class="cum">
+      <div class="cumhead" id="plans-legend"></div>
+      <svg id="plans-svg" viewBox="0 0 620 220" preserveAspectRatio="none" role="img" aria-label="Накопленный результат по трём тарифам за 12 месяцев"></svg>
+      <p class="cumfoot">По вертикали — накопленный результат: прирост прибыли минус все вложения, включая разовое внедрение. Пересечение нулевой линии — момент, когда тариф окупился.</p>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section aria-labelledby="h-honest">
+    <h2 id="h-honest">Почему это расчёт, а не обещание</h2>
+    <ol class="honest">
+      <li><b>Веса рычагов — моя оценка после часовой беседы.</b> Точное распределение появится после разбора выгрузок за 6–12 месяцев и почти наверняка окажется другим. Что не изменится: деньги в обороте 12 млн при рентабельности 30% есть.</li>
+      <li><b>Прирост не берётся из воздуха.</b> Каждый пункт — конкретное решение: отключить канал, изменить цену, пересобрать мотивацию. Решения принимаете вы, я даю цифры, на которых их принимают.</li>
+    </ol>
+    <p class="fine">Расчёты построены на цифрах с диагностики: оборот 12 млн ₽ в месяц, 15 человек, 1,3 млн ₽ на трафик, рентабельность 30%, цель 40%. Цены тарифов и стоимость внедрения — гипотеза, итог зависит от состояния данных. Тарифы в модели отличаются только ценой и сроком выхода на полный эффект (6-й, 4-й и 3-й месяц); размер эффекта во всех трёх принят одинаковым, потому что оснований считать иначе до разбора данных нет. Прирост прибыли не гарантирован и зависит от сохранения оборота и ваших решений.</p>
+  </section>
+
+  <div class="cta">
+    <h2 id="h-cta">Начнём с фактических цифр</h2>
+    <p class="picked-note" id="cta-pick" hidden></p>
+    <p>Первый шаг — доступ к выгрузкам за 6 месяцев и два часа моего времени. Через четыре недели вы увидите реальную прибыль по каждому продукту и каналу. Если цифры не покажут потерь на заявленную сумму — вы теряете только эти четыре недели.</p>
+    <p><a class="btn light" href="#" id="cta-link">Назначить старт работ</a></p>
+  </div>
+
 </div>
-
-<main>
-  <!-- ========================================================
-       HERO + БЛОК 9 — ПРОГРЕСС-БАР
-       ======================================================== -->
-  <section class="container hero">
-    <div class="hero__inner">
-
-      <!-- Левая колонка: текст и прогресс-бар -->
-      <div class="hero__content">
-        <p class="eyebrow">Витрина компонентов · v1.0</p>
-        <h1>Интерфейс, собранный <span>из неона</span></h1>
-        <p>Все базовые элементы в одном визуальном языке: состояния, анимации, поведение. Наводите, кликайте, вводите текст — здесь всё работает.</p>
-
-        <!-- Прогресс-бар заполняется автоматически за 3 секунды после старта страницы -->
-        <div class="progress">
-          <div class="progress__head">
-            <span class="eyebrow">Загрузка компонентов</span>
-            <span class="progress__value" id="progressValue">0%</span>
-          </div>
-          <div class="progress__track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Загрузка компонентов" id="progressBar">
-            <div class="progress__fill" id="progressFill"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Правая колонка: изображение -->
-      <div class="hero__media">
-        <img src="hero.png" alt="Витрина неоновых компонентов интерфейса">
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ========================================================
-       ВТОРОЙ ЭКРАН — КАРУСЕЛЬ
-       ======================================================== -->
-  <section class="container carousel-section" id="highlights">
-    <div class="carousel" id="carousel" role="region" aria-roledescription="карусель" aria-label="Возможности набора">
-
-      <div class="carousel__head">
-        <div>
-          <p class="eyebrow">Что внутри</p>
-          <h2>Четыре причины забрать набор</h2>
-        </div>
-      </div>
-
-      <!-- Сцена: окно с лентой и боковые стрелки поверх соседних карточек -->
-      <div class="carousel__stage">
-        <div class="carousel__viewport" id="carouselViewport">
-          <div class="carousel__track" id="carouselTrack">
-
-          <!-- Слайд 1 -->
-          <div class="carousel__slide" role="group" aria-roledescription="слайд" aria-label="1 из 4">
-            <article class="slide">
-              <span class="slide__num" aria-hidden="true">01</span>
-              <p class="eyebrow">Компоненты</p>
-              <h3 class="slide__title">Девять готовых блоков интерфейса</h3>
-              <p class="slide__text">Кнопки, поля, формы, переключатели, карточки, меню, модальные окна, слайдеры и прогресс-бары. Всё собрано в одном визуальном языке — ничего не придётся приводить друг к другу вручную.</p>
-              <ul class="slide__tags">
-                <li>Buttons</li><li>Inputs</li><li>Cards</li><li>Modal</li>
-              </ul>
-              <a class="btn btn--outline slide__link" href="#buttons">Посмотреть блоки</a>
-            </article>
-          </div>
-
-          <!-- Слайд 2 -->
-          <div class="carousel__slide" role="group" aria-roledescription="слайд" aria-label="2 из 4">
-            <article class="slide">
-              <span class="slide__num" aria-hidden="true">02</span>
-              <p class="eyebrow">Состояния</p>
-              <h3 class="slide__title">Не только внешний вид, но и поведение</h3>
-              <p class="slide__text">У каждого элемента продуманы наведение, нажатие, фокус, блокировка и загрузка. Ошибки в формах подсвечиваются и снимаются, как только вы начали исправлять поле.</p>
-              <ul class="slide__tags">
-                <li>Hover</li><li>Focus</li><li>Disabled</li><li>Loading</li>
-              </ul>
-              <a class="btn btn--outline slide__link" href="#login">Проверить форму</a>
-            </article>
-          </div>
-
-          <!-- Слайд 3 -->
-          <div class="carousel__slide" role="group" aria-roledescription="слайд" aria-label="3 из 4">
-            <article class="slide">
-              <span class="slide__num" aria-hidden="true">03</span>
-              <p class="eyebrow">Адаптивность</p>
-              <h3 class="slide__title">От 320 пикселей до широкого монитора</h3>
-              <p class="slide__text">Сетка перестраивается в одну колонку сама, верхнее меню сворачивается в бургер, зоны нажатия рассчитаны на палец. Горизонтальной прокрутки нет ни на одной ширине.</p>
-              <ul class="slide__tags">
-                <li>CSS Grid</li><li>Mobile first</li><li>Burger menu</li>
-              </ul>
-              <a class="btn btn--outline slide__link" href="#cards">Открыть карточки</a>
-            </article>
-          </div>
-
-          <!-- Слайд 4 -->
-          <div class="carousel__slide" role="group" aria-roledescription="слайд" aria-label="4 из 4">
-            <article class="slide">
-              <span class="slide__num" aria-hidden="true">04</span>
-              <p class="eyebrow">Технологии</p>
-              <h3 class="slide__title">Один файл и ноль зависимостей</h3>
-              <p class="slide__text">Чистые HTML, CSS и JavaScript без библиотек и сборки. Скачали файл, открыли в браузере — работает. Все цвета, отступы и тайминги вынесены в переменные и меняются в одном месте.</p>
-              <ul class="slide__tags">
-                <li>Pure JS</li><li>CSS Variables</li><li>No build</li>
-              </ul>
-              <a class="btn btn--outline slide__link" href="#controls">Смотреть дальше</a>
-            </article>
-          </div>
-
-        </div>   <!-- /track -->
-        </div>   <!-- /viewport -->
-
-        <button class="arrow arrow--prev" type="button" id="carouselPrev" aria-label="Предыдущий слайд">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M15 5l-7 7 7 7"/>
-          </svg>
-        </button>
-
-        <button class="arrow arrow--next" type="button" id="carouselNext" aria-label="Следующий слайд">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M9 5l7 7-7 7"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Точки-индикаторы под каруселью -->
-      <ul class="carousel__dots" id="carouselDots">
-        <li><button class="dot" type="button" data-index="0" aria-label="Слайд 1" aria-current="true"></button></li>
-        <li><button class="dot" type="button" data-index="1" aria-label="Слайд 2"></button></li>
-        <li><button class="dot" type="button" data-index="2" aria-label="Слайд 3"></button></li>
-        <li><button class="dot" type="button" data-index="3" aria-label="Слайд 4"></button></li>
-      </ul>
-
-    </div>
-  </section>
-
-  <!-- ========================================================
-       ТРЕТИЙ ЭКРАН — ВИДЕО
-       ======================================================== -->
-  <section class="container video-section" id="video">
-    <div class="video__head">
-      <p class="eyebrow">Обзор</p>
-      <h2>Набор в действии</h2>
-      <p>Короткая запись: как ведут себя компоненты при наведении, вводе и переключении.</p>
-    </div>
-
-    <!-- Плеер Kinescope. Адрес встраивания образуется из ссылки
-         на видео добавлением /embed/ перед идентификатором. -->
-    <div class="video__frame">
-      <iframe
-        src="https://kinescope.io/embed/bnYMUjkwMb2J7i9jCQNA8G"
-        title="Обзор набора компонентов"
-        frameborder="0"
-        allow="autoplay; fullscreen; picture-in-picture; encrypted-media;"
-        allowfullscreen
-        loading="lazy"></iframe>
-    </div>
-  </section>
-
-  <!-- ========================================================
-       КАЛЬКУЛЯТОР МАКСИМАЛЬНОЙ СКИДКИ
-       ======================================================== -->
-  <section class="container calc-section" id="calc">
-    <div class="calc__head">
-      <p class="eyebrow">Инструмент</p>
-      <h2>Калькулятор максимальной скидки</h2>
-      <p>Введите цену, себестоимость и минимально допустимую маржу. Калькулятор покажет, ниже какой цены опускаться нельзя и какую скидку вы вправе дать клиенту.</p>
-    </div>
-
-    <form class="calc" id="calcForm" novalidate>
-
-      <!-- Ввод данных -->
-      <div class="calc__form">
-
-        <div class="calc__field">
-          <label class="eyebrow" for="calcPrice">Базовая цена</label>
-          <div class="calc__input-wrap">
-            <input type="text" inputmode="decimal" class="input calc__input" id="calcPrice" placeholder="0" autocomplete="off">
-            <span class="calc__unit">₽</span>
-          </div>
-          <p class="calc__error" id="errPrice" hidden></p>
-        </div>
-
-        <div class="calc__field">
-          <label class="eyebrow" for="calcCost">Себестоимость</label>
-          <div class="calc__input-wrap">
-            <input type="text" inputmode="decimal" class="input calc__input" id="calcCost" placeholder="0" autocomplete="off">
-            <span class="calc__unit">₽</span>
-          </div>
-          <p class="calc__error" id="errCost" hidden></p>
-        </div>
-
-        <div class="calc__field">
-          <label class="eyebrow" for="calcMargin">Минимальная маржа</label>
-          <div class="calc__input-wrap">
-            <input type="text" inputmode="decimal" class="input calc__input" id="calcMargin" placeholder="0" autocomplete="off">
-            <span class="calc__unit">%</span>
-          </div>
-          <p class="calc__error" id="errMargin" hidden></p>
-        </div>
-
-        <button type="submit" class="btn btn--solid" id="calcBtn">Рассчитать</button>
-
-        <p class="calc__hint">Маржа считается от цены продажи: (цена − себестоимость) ÷ цена × 100.</p>
-      </div>
-
-      <!-- Результат -->
-      <div class="calc__results is-empty" id="calcResults" aria-live="polite">
-
-        <div class="calc__tile">
-          <div class="calc__tile-head">
-            <span class="eyebrow">Минимально допустимая цена</span>
-            <button type="button" class="calc__copy" id="copyMinPrice" aria-label="Скопировать минимальную цену">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>
-              </svg>
-            </button>
-          </div>
-          <b class="calc__value" id="resMinPrice">—</b>
-          <span class="calc__sub" id="resBaseMargin"></span>
-        </div>
-
-        <div class="calc__tile calc__tile--accent">
-          <span class="eyebrow">Максимальная скидка</span>
-          <b class="calc__value" id="resDiscount">—</b>
-          <span class="calc__sub" id="resDiscountRub"></span>
-        </div>
-
-        <div class="calc__status" id="calcStatus">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.4"/>
-          </svg>
-          <span id="calcStatusText">Заполните три поля слева и нажмите «Рассчитать».</span>
-        </div>
-
-      </div>
-
-      <!-- Примерка конкретной скидки: появляется после первого расчёта -->
-      <div class="calc__try" id="calcTry" hidden>
-        <div class="slider__head">
-          <span class="eyebrow">Примерьте скидку</span>
-          <span class="slider__value" id="tryPct">0,0 %</span>
-        </div>
-        <input type="range" class="range" id="tryRange" min="0" max="100" step="0.5" value="0" aria-label="Размер скидки в процентах">
-
-        <div class="calc__try-out">
-          <div>
-            <span class="eyebrow">Цена со скидкой</span>
-            <b id="tryPrice">—</b>
-          </div>
-          <div>
-            <span class="eyebrow">Маржа при этой цене</span>
-            <b id="tryMargin">—</b>
-          </div>
-          <div>
-            <span class="eyebrow">Прибыль со сделки</span>
-            <b id="tryProfit">—</b>
-          </div>
-        </div>
-
-        <p class="calc__try-note" id="tryNote" style="margin: 14px 0 0;"></p>
-      </div>
-
-      <!-- Разбор расчёта: те же формулы, но с подставленными числами -->
-      <details class="calc__explain" id="calcExplain" open>
-        <summary>Как получились эти цифры</summary>
-
-        <ol class="calc__steps">
-          <li>
-            <b>Маржа — это доля прибыли в цене продажи</b>, а не наценка на себестоимость.
-            Если маржа <span id="expMargin">—</span>, значит из каждых 100 ₽, которые платит клиент,
-            <span id="expMarginRub">—</span> должно остаться прибылью, а остальное уходит на себестоимость.
-          </li>
-          <li>
-            <b>Минимальная цена.</b> Себестоимость — это та доля цены, которая остаётся после вычета маржи.
-            Делим себестоимость на эту долю:
-            <code id="expFormula1">—</code>
-            Ниже этой суммы продавать нельзя.
-          </li>
-          <li>
-            <b>Максимальная скидка.</b> Считаем, насколько базовая цена выше минимальной,
-            и переводим разницу в проценты от базовой:
-            <code id="expFormula2">—</code>
-          </li>
-        </ol>
-
-        <p class="calc__plain" id="expPlain">—</p>
-      </details>
-
-      <!-- Готовые сообщения клиенту под выбранную скидку -->
-      <div class="calc__scripts" id="calcScripts" hidden>
-        <div class="calc__scripts-head">
-          <span class="eyebrow">Скрипты для клиента</span>
-          <span class="calc__scripts-note" id="scriptsNote"></span>
-        </div>
-        <div class="calc__scripts-grid" id="scriptsGrid"></div>
-      </div>
-
-    </form>
-  </section>
-
-  <!-- ========================================================
-       СЕТКА СЕКЦИЙ
-       ======================================================== -->
-  <div class="container">
-    <div class="grid">
-
-      <!-- ---------- БЛОК 1: КНОПКИ ---------- -->
-      <section class="panel" id="buttons">
-        <p class="eyebrow">01 / Buttons</p>
-        <h2 class="panel__title">Кнопки</h2>
-        <p class="panel__desc">Четыре типа и все состояния: наведение, нажатие, блокировка, загрузка.</p>
-
-        <div class="row">
-          <button class="btn btn--solid">Обычная</button>
-          <button class="btn btn--outline">Контурная</button>
-
-          <!-- Кнопка с иконкой -->
-          <button class="btn btn--outline">
-            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
-            С иконкой
-          </button>
-
-          <!-- «Загрузочная» кнопка: по клику уходит в загрузку на 2 секунды -->
-          <button class="btn btn--solid" id="loadBtn">Загрузить</button>
-
-          <button class="btn btn--ghost" disabled>Заблокирована</button>
-        </div>
-      </section>
-
-      <!-- ---------- БЛОК 2: ПОЛЯ ВВОДА ---------- -->
-      <section class="panel" id="inputs">
-        <p class="eyebrow">02 / Inputs</p>
-        <h2 class="panel__title">Поля ввода</h2>
-        <p class="panel__desc">Плавающий лейбл поднимается при фокусе и остаётся наверху, пока поле заполнено.</p>
-
-        <div class="stack">
-          <!-- Плавающий лейбл. placeholder=" " обязателен: на нём построено
-               правило :placeholder-shown, определяющее, пустое ли поле. -->
-          <div class="field">
-            <input type="text" class="input" id="demoName" placeholder=" ">
-            <label class="field__label" for="demoName">Имя пользователя</label>
-          </div>
-
-          <!-- Поле поиска с иконкой -->
-          <div class="field field--search">
-            <input type="search" class="input" placeholder="Поиск по компонентам" aria-label="Поиск по компонентам">
-            <svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
-            </svg>
-          </div>
-        </div>
-      </section>
-
-      <!-- ---------- БЛОК 3: ФОРМА ВХОДА ---------- -->
-      <section class="panel" id="login">
-        <p class="eyebrow">03 / Forms</p>
-        <h2 class="panel__title">Форма входа</h2>
-        <p class="panel__desc">Пустые поля подсвечиваются ошибкой. При корректном вводе — анимация отправки и уведомление.</p>
-
-        <!-- novalidate отключает браузерные подсказки, чтобы не конфликтовать со своей проверкой -->
-        <form class="stack" id="loginForm" novalidate>
-          <div class="field">
-            <input type="email" class="input" id="loginEmail" placeholder=" " autocomplete="email">
-            <label class="field__label" for="loginEmail">E-mail</label>
-          </div>
-
-          <div class="field">
-            <input type="password" class="input" id="loginPass" placeholder=" " autocomplete="current-password">
-            <label class="field__label" for="loginPass">Пароль</label>
-          </div>
-
-          <label class="control">
-            <input type="checkbox" checked>
-            <span class="checkbox"></span>
-            <span class="control__text">Запомнить меня</span>
-          </label>
-
-          <button type="submit" class="btn btn--solid" id="loginBtn">Войти</button>
-        </form>
-      </section>
-
-      <!-- ---------- БЛОК 4: ПЕРЕКЛЮЧАТЕЛИ И ЧЕКБОКСЫ ---------- -->
-      <section class="panel" id="controls">
-        <p class="eyebrow">04 / Checkboxes</p>
-        <h2 class="panel__title">Переключатели и чекбоксы</h2>
-        <p class="panel__desc">Кастомная отрисовка поверх нативных элементов — работа с клавиатуры сохранена.</p>
-
-        <div class="stack">
-          <label class="control">
-            <input type="checkbox" checked>
-            <span class="toggle"></span>
-            <span class="control__text">Неоновая подсветка</span>
-          </label>
-
-          <label class="control">
-            <input type="checkbox">
-            <span class="toggle"></span>
-            <span class="control__text">Звуковые эффекты</span>
-          </label>
-
-          <label class="control">
-            <input type="checkbox" disabled>
-            <span class="toggle"></span>
-            <span class="control__text">Экспериментальный режим</span>
-          </label>
-
-          <label class="control">
-            <input type="checkbox" checked>
-            <span class="checkbox"></span>
-            <span class="control__text">Сохранять историю</span>
-          </label>
-
-          <label class="control">
-            <input type="checkbox">
-            <span class="checkbox"></span>
-            <span class="control__text">Присылать отчёты на почту</span>
-          </label>
-        </div>
-      </section>
-
-      <!-- ---------- БЛОК 8: СЛАЙДЕР ---------- -->
-      <section class="panel" id="slider">
-        <p class="eyebrow">08 / Sliders</p>
-        <h2 class="panel__title">Слайдеры</h2>
-        <p class="panel__desc">Значение обновляется непрерывно, пока вы тянете ползунок.</p>
-
-        <div class="stack">
-          <div>
-            <div class="slider__head">
-              <span class="eyebrow">Яркость свечения</span>
-              <span class="slider__value" id="glowValue">65%</span>
-            </div>
-            <input type="range" class="range" id="glowRange" min="0" max="100" value="65" aria-label="Яркость свечения">
-          </div>
-
-          <div>
-            <div class="slider__head">
-              <span class="eyebrow">Объём памяти</span>
-              <span class="slider__value" id="memValue">450 MB</span>
-            </div>
-            <input type="range" class="range" id="memRange" min="0" max="2000" step="50" value="450" aria-label="Объём памяти">
-          </div>
-        </div>
-      </section>
-
-      <!-- ---------- БЛОК 7: МОДАЛЬНОЕ ОКНО ---------- -->
-      <section class="panel" id="popups">
-        <p class="eyebrow">07 / Popups</p>
-        <h2 class="panel__title">Модальное окно</h2>
-        <p class="panel__desc">Закрывается крестиком, кнопкой, клавишей Escape и кликом по затемнению.</p>
-
-        <div class="row">
-          <button class="btn btn--solid" id="openModal">
-            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>
-            </svg>
-            Открыть профиль
-          </button>
-        </div>
-      </section>
-
-      <!-- ---------- БЛОК 5: КАРТОЧКИ ТОВАРОВ ---------- -->
-      <section class="panel panel--wide" id="cards">
-        <p class="eyebrow">05 / Cards</p>
-        <h2 class="panel__title">Карточки товаров</h2>
-        <p class="panel__desc">При наведении карточка поднимается, изображение приближается и возвращает цвет.</p>
-
-        <div class="cards">
-          <article class="card">
-            <div class="card__media">
-              <img src="https://picsum.photos/300/200?random=1" alt="Механическая клавиатура на тёмном фоне" loading="lazy" width="300" height="200">
-            </div>
-            <div class="card__body">
-              <h3 class="card__title">Клавиатура NEON-87</h3>
-              <p class="card__text">Механика с линейными переключателями и сквозной подсветкой.</p>
-              <span class="card__price">12 400 ₽</span>
-              <button class="btn btn--outline">В корзину</button>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card__media">
-              <img src="https://picsum.photos/300/200?random=2" alt="Игровая мышь крупным планом" loading="lazy" width="300" height="200">
-            </div>
-            <div class="card__body">
-              <h3 class="card__title">Мышь PULSE X</h3>
-              <p class="card__text">Оптический сенсор 26 000 DPI, вес 58 грамм, без провода.</p>
-              <span class="card__price">6 900 ₽</span>
-              <button class="btn btn--outline">В корзину</button>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card__media">
-              <img src="https://picsum.photos/300/200?random=3" alt="Накладные наушники на столе" loading="lazy" width="300" height="200">
-            </div>
-            <div class="card__body">
-              <h3 class="card__title">Гарнитура ECHO Pro</h3>
-              <p class="card__text">Активное шумоподавление и 40 часов работы от одного заряда.</p>
-              <span class="card__price">18 250 ₽</span>
-              <button class="btn btn--outline">В корзину</button>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card__media">
-              <img src="https://picsum.photos/300/200?random=4" alt="Монитор с изогнутым экраном" loading="lazy" width="300" height="200">
-            </div>
-            <div class="card__body">
-              <h3 class="card__title">Монитор GRID 27</h3>
-              <p class="card__text">27 дюймов, 240 Гц, заводская калибровка цвета.</p>
-              <span class="card__price">54 000 ₽</span>
-              <button class="btn btn--outline">В корзину</button>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <!-- ---------- БЛОК 6: ДЕМОНСТРАЦИЯ МЕНЮ ---------- -->
-      <section class="panel panel--wide" id="menu">
-        <p class="eyebrow">06 / Menu</p>
-        <h2 class="panel__title">Меню с подчёркиванием</h2>
-        <p class="panel__desc">Тот же компонент, что и в верхней панели: линия раскрывается слева направо. На мобильных верхнее меню сворачивается в бургер.</p>
-
-        <nav>
-          <ul class="navbar__links" style="flex-wrap: wrap;">
-            <li><a class="navbar__link" href="#menu">Главная</a></li>
-            <li><a class="navbar__link" href="#menu">Каталог</a></li>
-            <li><a class="navbar__link" href="#menu">Документация</a></li>
-            <li><a class="navbar__link" href="#menu">Тарифы</a></li>
-            <li><a class="navbar__link" href="#menu">Контакты</a></li>
-          </ul>
-        </nav>
-      </section>
-
-    </div>
-  </div>
-</main>
-
-<footer class="footer">
-  <div class="container">NEON//KIT — демонстрационная витрина компонентов. Данные никуда не отправляются.</div>
-</footer>
-
-<!-- ==========================================================
-     МОДАЛЬНОЕ ОКНО
-     ========================================================== -->
-<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalName" hidden>
-  <div class="modal">
-    <button class="modal__close" id="closeModal" aria-label="Закрыть окно">&times;</button>
-
-    <img class="modal__avatar" src="https://picsum.photos/300/200?random=9" alt="Фотография профиля">
-    <h3 class="modal__name" id="modalName">Кира Волкова</h3>
-    <p class="modal__role">Frontend-инженер · онлайн</p>
-
-    <div class="modal__stats">
-      <div class="modal__stat"><b>142</b><span>Проекта</span></div>
-      <div class="modal__stat"><b>8.7k</b><span>Коммитов</span></div>
-      <div class="modal__stat"><b>4.9</b><span>Рейтинг</span></div>
-    </div>
-
-    <div class="modal__actions">
-      <button class="btn btn--solid" id="modalFollow">Подписаться</button>
-      <button class="btn btn--ghost" id="modalCancel">Закрыть</button>
-    </div>
-  </div>
-</div>
-
-<!-- Контейнер для всплывающих уведомлений -->
-<div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
-/* ============================================================
-   JS. Весь код обёрнут в IIFE, чтобы не засорять глобальную
-   область видимости.
-   ============================================================ */
-(function () {
-  'use strict';
+(function(){
+  var f0 = new Intl.NumberFormat('ru-RU', {maximumFractionDigits:0});
+  var f1 = new Intl.NumberFormat('ru-RU', {minimumFractionDigits:1, maximumFractionDigits:1});
+  var rub = function(n){ return f0.format(Math.round(n)) + ' ₽'; };
+  var $ = function(id){ return document.getElementById(id); };
 
-  /* ---------- Утилиты ---------- */
-  var $ = function (sel) { return document.querySelector(sel); };
+  // фактические вводные с диагностики (не редактируются на странице)
+  var TRAFFIC = 1300000, TEAM = 15;
 
-  /* ============================================================
-     1. TOAST-УВЕДОМЛЕНИЯ
-     Создаёт элемент, показывает его с анимацией и удаляет
-     из DOM только после завершения анимации ухода.
-     ============================================================ */
-  var toastsBox = $('#toasts');
+  var PLANS = [
+    {name:'Учёт и отчётность',    fee:90000,  impl:250000, ramp:6},
+    {name:'Сопровождение',        fee:150000, impl:400000, ramp:4},
+    {name:'Финансовый директор',  fee:250000, impl:0,      ramp:3}
+  ];
+  var PLAN_COLORS = ['#5B6B7A', '#1F3FBF', '#16202B'];
+  var LEVER_DEFAULTS = [3, 2.5, 3, 1.5];
 
-  function showToast(message, type) {
-    var toast = document.createElement('div');
-    toast.className = 'toast' + (type === 'error' ? ' toast--error' : '');
+  var els = {revenue:$('revenue'), margin:$('margin'), reach:$('reach')};
+  var levers = [$('l1'), $('l2'), $('l3'), $('l4')];
 
-    var dot = document.createElement('span');
-    dot.className = 'toast__dot';
+  function calc(){
+    var rev = Math.max(0, Number(els.revenue.value) || 0);
+    var mg = Number(els.margin.value);
+    var reach = Number(els.reach.value) / 100;
+    var pp = rev / 100;
+    var sum = levers.reduce(function(a, el){ return a + Number(el.value); }, 0);
 
-    var text = document.createElement('span');
-    text.textContent = message;
+    $('margin-v').textContent = mg;
+    $('pp-value').textContent = f0.format(Math.round(pp));
 
-    toast.appendChild(dot);
-    toast.appendChild(text);
-    toastsBox.appendChild(toast);
-
-    // Кадр задержки нужен, чтобы браузер зафиксировал начальное
-    // состояние и отработал переход, а не показал элемент сразу.
-    requestAnimationFrame(function () {
-      toast.classList.add('is-visible');
+    levers.forEach(function(el, i){
+      var v = Number(el.value), money = v * pp, txt;
+      $('l' + (i+1) + '-v').textContent = f1.format(v);
+      if (v === 0) txt = 'рычаг выключен';
+      else if (i === 0) txt = '+' + rub(money) + ' в месяц — это снизить расход на трафик на ' + f1.format(money / TRAFFIC * 100) + '% при той же выручке';
+      else if (i === 1) txt = '+' + rub(money) + ' в месяц — это ' + rub(money / TEAM) + ' на каждого из ' + TEAM + ' в команде';
+      else if (i === 2) txt = '+' + rub(money) + ' в месяц — это ' + f1.format(v) + '% к марже продаж при том же обороте';
+      else txt = '+' + rub(money) + ' в месяц — это ' + rub(money * 12) + ' прочих расходов за год';
+      $('l' + (i+1) + '-m').textContent = txt;
     });
 
-    setTimeout(function () {
-      toast.classList.remove('is-visible');
-      toast.addEventListener('transitionend', function () {
-        toast.remove();
-      }, { once: true });
-    }, 3200);
-  }
+    var profitNow = rev * mg / 100;
+    var gapMonth = sum * pp;
+    var gain = gapMonth * reach;
+    var profitNew = profitNow + gain;
 
-  /* ============================================================
-     2. ПРОГРЕСС-БАР
-     Заполняется от 0 до 100% за 3 секунды после старта страницы.
-     Используется requestAnimationFrame: анимация синхронизирована
-     с частотой обновления экрана и не «плывёт» при нагрузке.
-     ============================================================ */
-  var DURATION = 3000;
-  var fill  = $('#progressFill');
-  var label = $('#progressValue');
-  var track = $('#progressBar');
+    $('t-profit').textContent = rub(profitNew);
+    $('t-marg').textContent = rev > 0 ? f1.format(profitNew / rev * 100) + '%' : '—';
+    $('t-was').textContent = 'было ' + f1.format(mg) + '%';
+    $('t-extra').textContent = (gain > 0 ? '+' : '') + rub(gain);
+    $('t-year').textContent = rub(gain * 12) + ' за год';
+    $('reach-v').textContent = Math.round(reach * 100);
+    $('reach-money').textContent = rub(gain);
 
-  function runProgress() {
-    var start = performance.now();
-
-    function step(now) {
-      var progress = Math.min((now - start) / DURATION, 1);
-      // Плавное замедление к концу — движение выглядит естественнее линейного
-      var eased = 1 - Math.pow(1 - progress, 3);
-      var percent = Math.round(eased * 100);
-
-      fill.style.transform = 'scaleX(' + eased + ')';
-      label.textContent = percent + '%';
-      track.setAttribute('aria-valuenow', percent);
-
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      } else {
-        fill.classList.add('is-done');   // короткая вспышка по завершении
-        label.textContent = 'Готово';
-      }
+    var bridge = $('bridge-text');
+    if (gain <= 0){
+      bridge.innerHTML = '<b>Все рычаги выключены.</b> Подвиньте хотя бы один — иначе оплачивать работу нечем, и это честный ответ модели.';
+    } else if (Math.abs(mg + sum - 40) < 0.01){
+      bridge.innerHTML = '<b>' + rub(gain) + ' в месяц</b> — это источник, из которого оплачивается вся работа ниже, и он остаётся у вас после её окончания.';
+    } else if (mg + sum < 40){
+      bridge.innerHTML = '<b>' + rub(gain) + ' в месяц.</b> До цели в 40% не хватает ' + f1.format(40 - mg - sum) + ' п.п. — их ищем в первые четыре недели по факту, а не по оценке.';
+    } else {
+      bridge.innerHTML = '<b>' + rub(gain) + ' в месяц</b> — это выше заявленной цели в 40%. Такой сценарий стоит проверять на данных, прежде чем закладывать в план.';
     }
-    requestAnimationFrame(step);
+
+    var results = PLANS.map(function(pl){ return scenario(gain, pl.fee, pl.impl, pl.ramp, 12); });
+    results.forEach(function(r, i){
+      $('p' + i + '-be').textContent = r.be ? r.be + '-го месяца' : 'не окупается за год';
+      $('p' + i + '-net').textContent = rub(r.net);
+      $('p' + i + '-x').textContent = r.cost > 0 ? f1.format(r.gain / r.cost) + '×' : '—';
+    });
+    drawPlans(results);
   }
 
-  /* ============================================================
-     3. КАРУСЕЛЬ
-     Активная карточка центрируется в окне, соседние выглядывают
-     по краям. Сдвиг считается в пикселях по фактическим размерам
-     слайда — процентами это не выразить, потому что карточка уже
-     окна и её нужно дополнительно смещать к центру.
-     ============================================================ */
-  var carousel  = $('#carousel');
-  var cViewport = $('#carouselViewport');
-  var cTrack    = $('#carouselTrack');
-  var cSlides   = Array.prototype.slice.call(cTrack.querySelectorAll('.carousel__slide'));
-  var cDots     = document.querySelectorAll('.dot');
-  var cCount    = cSlides.length;
-  var cIndex    = 0;
-
-  // Сдвиг ленты: центр окна минус центр активной карточки
-  function positionTrack() {
-    var slideW = cSlides[0].getBoundingClientRect().width;
-    var gap    = parseFloat(getComputedStyle(cTrack).gap) || 0;
-    var offset = (cViewport.clientWidth - slideW) / 2;
-
-    cTrack.style.transform = 'translateX(' + (offset - cIndex * (slideW + gap)) + 'px)';
+  // помесячная модель: прирост нарастает от нуля до полного к месяцу ramp
+  function scenario(gainFull, fee, impl, ramp, horizon){
+    var months = [], cumGain = 0, cumCost = 0, be = null, share, m;
+    for (m = 1; m <= horizon; m++){
+      share = ramp <= 1 ? 1 : Math.min(1, Math.max(0, (m - 1) / (ramp - 1)));
+      cumGain += gainFull * share;
+      cumCost += fee + (m === 1 ? impl : 0);
+      if (be === null && cumGain >= cumCost) be = m;
+      months.push({m:m, net:cumGain - cumCost});
+    }
+    return {months:months, be:be, gain:cumGain, cost:cumCost, net:cumGain - cumCost};
   }
 
-  function goToSlide(target) {
-    // Остаток от деления зацикливает ленту в обе стороны
-    cIndex = (target % cCount + cCount) % cCount;
-    positionTrack();
+  function drawPlans(results){
+    var W = 620, H = 220, L = 8, R = 8, T = 14, B = 24, N = 12;
+    var all = [];
+    results.forEach(function(r){ r.months.forEach(function(p){ all.push(p.net); }); });
+    var maxV = Math.max.apply(null, all.concat([0]));
+    var minV = Math.min.apply(null, all.concat([0]));
+    var span = (maxV - minV) || 1;
+    var x = function(m){ return L + (m - 1) / (N - 1) * (W - L - R); };
+    var y = function(v){ return H - B - ((v - minV) / span) * (H - T - B); };
+    var y0 = y(0), svg = '';
 
-    cSlides.forEach(function (slide, i) {
-      var isActive = (i === cIndex);
-      slide.classList.toggle('is-active', isActive);
-
-      // Боковые карточки убираем из потока чтения и из обхода по Tab —
-      // иначе фокус уходил бы на полускрытую кнопку и дёргал ленту.
-      slide.setAttribute('aria-hidden', String(!isActive));
-      var link = slide.querySelector('a');
-      if (link) link.tabIndex = isActive ? 0 : -1;
-
-      if (isActive) {
-        cDots[i].setAttribute('aria-current', 'true');
-      } else {
-        cDots[i].removeAttribute('aria-current');
+    svg += '<rect class="neg-band" x="' + L + '" y="' + y0 + '" width="' + (W - L - R) + '" height="' + Math.max(0, (H - B) - y0) + '"/>';
+    svg += '<line class="zero-line" x1="' + L + '" y1="' + y0 + '" x2="' + (W - R) + '" y2="' + y0 + '"/>';
+    results.forEach(function(r, i){
+      svg += '<polyline class="pline pline-' + i + '" points="' + r.months.map(function(p){ return x(p.m) + ',' + y(p.net); }).join(' ') + '"/>';
+      if (r.be){
+        var p = r.months[r.be - 1];
+        svg += '<circle cx="' + x(p.m) + '" cy="' + y(p.net) + '" r="3.5" style="fill:' + PLAN_COLORS[i] + '"/>';
       }
     });
+    for (var m = 1; m <= N; m++){
+      if (m === 1 || m % 3 === 0) svg += '<text class="axis-text" x="' + x(m) + '" y="' + (H - 7) + '" text-anchor="middle">' + m + '</text>';
+    }
+    $('plans-svg').innerHTML = svg;
+    $('plans-legend').innerHTML = PLANS.map(function(pl, i){
+      return '<div><span class="key" style="border-top-color:' + PLAN_COLORS[i] + '"></span>' + pl.name + ' — ' + f0.format(pl.fee) + ' ₽/мес</div>';
+    }).join('');
   }
 
-  $('#carouselPrev').addEventListener('click', function () { goToSlide(cIndex - 1); });
-  $('#carouselNext').addEventListener('click', function () { goToSlide(cIndex + 1); });
+  [els.revenue, els.margin, els.reach].concat(levers).forEach(function(el){
+    el.addEventListener('input', calc);
+    el.addEventListener('change', calc);
+  });
 
-  // Точки-индикаторы
-  cDots.forEach(function (dot) {
-    dot.addEventListener('click', function () {
-      goToSlide(Number(dot.dataset.index));
+  $('lev-zero').addEventListener('click', function(){
+    levers.forEach(function(el){ el.value = 0; });
+    calc();
+  });
+  $('lev-reset').addEventListener('click', function(){
+    levers.forEach(function(el, i){ el.value = LEVER_DEFAULTS[i]; });
+    calc();
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.stage'), function(st){
+    var btn = st.querySelector('button');
+    btn.addEventListener('click', function(){
+      var open = st.getAttribute('open-state') === '1';
+      st.setAttribute('open-state', open ? '0' : '1');
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
     });
   });
 
-  // Клик по боковой карточке переводит на неё
-  cSlides.forEach(function (slide, i) {
-    slide.addEventListener('click', function (e) {
-      // Клик по кнопке внутри активной карточки обрабатываем как обычно
-      if (i !== cIndex && !e.target.closest('a')) goToSlide(i);
-    });
-  });
-
-  // Стрелки клавиатуры работают, когда фокус находится внутри карусели
-  carousel.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowLeft')  { goToSlide(cIndex - 1); }
-    if (e.key === 'ArrowRight') { goToSlide(cIndex + 1); }
-  });
-
-  // Свайп на сенсорных экранах. Порог в 50px отсекает случайные
-  // касания и не мешает вертикальной прокрутке страницы.
-  var touchStartX = 0;
-  var touchStartY = 0;
-
-  cTrack.addEventListener('touchstart', function (e) {
-    touchStartX = e.changedTouches[0].clientX;
-    touchStartY = e.changedTouches[0].clientY;
-  }, { passive: true });
-
-  cTrack.addEventListener('touchend', function (e) {
-    var dx = e.changedTouches[0].clientX - touchStartX;
-    var dy = e.changedTouches[0].clientY - touchStartY;
-
-    // Реагируем только если жест горизонтальный
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-      goToSlide(dx < 0 ? cIndex + 1 : cIndex - 1);
-    }
-  }, { passive: true });
-
-  // При изменении ширины окна размеры карточки меняются — пересчитываем
-  // сдвиг без анимации, чтобы лента не «уезжала» во время ресайза.
-  var resizeTimer;
-  window.addEventListener('resize', function () {
-    cTrack.style.transition = 'none';
-    positionTrack();
-
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () { cTrack.style.transition = ''; }, 120);
-  });
-
-  goToSlide(0); // начальная синхронизация
-
-  /* ============================================================
-     4. СЛАЙДЕРЫ
-     Событие input срабатывает непрерывно во время перетаскивания
-     (в отличие от change, который ждёт отпускания ползунка).
-     ============================================================ */
-  function bindRange(rangeId, valueId, format) {
-    var range = $(rangeId);
-    var out   = $(valueId);
-
-    function update() {
-      var min = Number(range.min) || 0;
-      var max = Number(range.max) || 100;
-      var val = Number(range.value);
-
-      // Доля заполнения передаётся в CSS-переменную и красит дорожку
-      var percent = ((val - min) / (max - min)) * 100;
-      range.style.setProperty('--fill', percent + '%');
-
-      out.textContent = format(val);
-    }
-
-    range.addEventListener('input', update);
-    update(); // начальная синхронизация при загрузке
-  }
-
-  bindRange('#glowRange', '#glowValue', function (v) { return v + '%'; });
-  bindRange('#memRange',  '#memValue',  function (v) { return v + ' MB'; });
-
-  /* ============================================================
-     4. МОДАЛЬНОЕ ОКНО
-     ============================================================ */
-  var overlay    = $('#overlay');
-  var openBtn    = $('#openModal');
-  var lastFocused = null;      // сюда вернём фокус после закрытия
-  var overlayMouseDown = false; // защита от закрытия при выделении текста
-
-  function openModal() {
-    lastFocused = document.activeElement;
-    overlay.hidden = false;
-
-    // Кадр задержки — иначе переход не проиграется после снятия hidden
-    requestAnimationFrame(function () {
-      overlay.classList.add('is-open');
-    });
-
-    // Блокируем прокрутку фона и компенсируем ширину скроллбара,
-    // чтобы контент не дёрнулся вбок.
-    var scrollbar = window.innerWidth - document.documentElement.clientWidth;
-    document.body.style.overflow = 'hidden';
-    document.body.style.paddingRight = scrollbar + 'px';
-
-    $('#closeModal').focus();
-  }
-
-  function closeModal() {
-    overlay.classList.remove('is-open');
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
-
-    // Прячем окно только после завершения анимации ухода
-    overlay.addEventListener('transitionend', function handler(e) {
-      if (e.target === overlay) {
-        overlay.hidden = true;
-        overlay.removeEventListener('transitionend', handler);
-      }
-    });
-
-    if (lastFocused) lastFocused.focus();
-  }
-
-  openBtn.addEventListener('click', openModal);
-  $('#closeModal').addEventListener('click', closeModal);
-  $('#modalCancel').addEventListener('click', closeModal);
-
-  $('#modalFollow').addEventListener('click', function () {
-    closeModal();
-    showToast('Вы подписались на обновления профиля');
-  });
-
-  // Закрытие кликом по затемнению. Проверяем и нажатие, и отпускание:
-  // иначе выделение текста внутри окна с отпусканием мыши снаружи
-  // закрыло бы модалку.
-  overlay.addEventListener('mousedown', function (e) {
-    overlayMouseDown = (e.target === overlay);
-  });
-  overlay.addEventListener('mouseup', function (e) {
-    if (overlayMouseDown && e.target === overlay) closeModal();
-    overlayMouseDown = false;
-  });
-
-  /* ============================================================
-     5. МОБИЛЬНОЕ МЕНЮ
-     ============================================================ */
-  var burger = $('#burger');
-  var menu   = $('#mobileMenu');
-
-  function setMenu(open) {
-    burger.setAttribute('aria-expanded', String(open));
-    burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
-
-    if (open) {
-      menu.hidden = false;
-      requestAnimationFrame(function () { menu.classList.add('is-open'); });
-    } else {
-      menu.classList.remove('is-open');
-      setTimeout(function () { menu.hidden = true; }, 380);
-    }
-  }
-
-  burger.addEventListener('click', function () {
-    setMenu(burger.getAttribute('aria-expanded') !== 'true');
-  });
-
-  // Клик по пункту закрывает меню
-  menu.addEventListener('click', function (e) {
-    if (e.target.tagName === 'A') setMenu(false);
-  });
-
-  // При расширении окна до десктопа меню не должно остаться висеть
-  window.addEventListener('resize', function () {
-    if (window.innerWidth >= 768 && burger.getAttribute('aria-expanded') === 'true') {
-      setMenu(false);
-    }
-  });
-
-  /* ============================================================
-     6. ESCAPE — общий обработчик
-     Приоритет у модального окна: если открыты оба, закрываем его.
-     ============================================================ */
-  document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape') return;
-
-    if (overlay.classList.contains('is-open')) {
-      closeModal();
-    } else if (burger.getAttribute('aria-expanded') === 'true') {
-      setMenu(false);
-    }
-  });
-
-  /* ============================================================
-     7. «ЗАГРУЗОЧНАЯ» КНОПКА
-     На время загрузки блокируется, чтобы повторный клик
-     не запускал процесс заново.
-     ============================================================ */
-  var loadBtn = $('#loadBtn');
-
-  loadBtn.addEventListener('click', function () {
-    var original = loadBtn.innerHTML;
-    loadBtn.disabled = true;
-    loadBtn.innerHTML = '<span class="spinner"></span> Загрузка';
-
-    setTimeout(function () {
-      loadBtn.disabled = false;
-      loadBtn.innerHTML = original;
-      showToast('Данные загружены');
-    }, 2000);
-  });
-
-  /* ============================================================
-     8. ФОРМА ВХОДА
-     Проверка выполняется на клиенте, данные никуда не уходят.
-     ============================================================ */
-  var form     = $('#loginForm');
-  var email    = $('#loginEmail');
-  var password = $('#loginPass');
-  var loginBtn = $('#loginBtn');
-
-  // Простая проверка структуры адреса: есть имя, собака, домен и зона
-  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-  function markInvalid(input) {
-    input.classList.add('is-invalid');
-    input.setAttribute('aria-invalid', 'true');
-  }
-
-  function clearInvalid(input) {
-    input.classList.remove('is-invalid');
-    input.removeAttribute('aria-invalid');
-  }
-
-  // Как только человек начал исправлять поле — снимаем подсветку ошибки
-  [email, password].forEach(function (input) {
-    input.addEventListener('input', function () { clearInvalid(input); });
-  });
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault(); // отправки на сервер нет — это демонстрация
-
-    var emailValue = email.value.trim();
-    var passValue  = password.value;
-    var firstError = null;
-
-    clearInvalid(email);
-    clearInvalid(password);
-
-    // Пустые поля
-    if (!emailValue) {
-      markInvalid(email);
-      firstError = firstError || email;
-      showToast('Введите e-mail', 'error');
-    } else if (!EMAIL_RE.test(emailValue)) {
-      markInvalid(email);
-      firstError = firstError || email;
-      showToast('Адрес должен быть в формате name@example.com', 'error');
-    }
-
-    if (!passValue) {
-      markInvalid(password);
-      firstError = firstError || password;
-      if (emailValue && EMAIL_RE.test(emailValue)) showToast('Введите пароль', 'error');
-    } else if (passValue.length < 8) {
-      markInvalid(password);
-      firstError = firstError || password;
-      if (emailValue && EMAIL_RE.test(emailValue)) showToast('Пароль — минимум 8 символов', 'error');
-    }
-
-    if (firstError) {
-      firstError.focus();
-      return;
-    }
-
-    // Анимация отправки: кнопка уходит в загрузку на 1.5 секунды
-    var original = loginBtn.textContent;
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<span class="spinner"></span> Проверяем';
-
-    setTimeout(function () {
-      loginBtn.disabled = false;
-      loginBtn.textContent = original;
-      form.reset();
-      showToast('Вход выполнен. Добро пожаловать!');
-    }, 1500);
-  });
-
-  /* ============================================================
-     10. КАЛЬКУЛЯТОР МАКСИМАЛЬНОЙ СКИДКИ
-
-     Маржа считается от цены продажи (маржинальность):
-        маржа% = (цена − себестоимость) / цена × 100
-
-     Отсюда минимально допустимая цена:
-        Pmin = себестоимость / (1 − маржа% / 100)
-
-     И максимальная скидка от базовой цены:
-        скидка% = (цена − Pmin) / цена × 100
-
-     Округление всегда в безопасную сторону: минимальная цена вверх,
-     максимальная скидка вниз. Иначе сотрудник, дав ровно показанную
-     скидку, уйдёт на доли процента ниже порога.
-     ============================================================ */
-  var calcForm   = $('#calcForm');
-  var fPrice     = $('#calcPrice');
-  var fCost      = $('#calcCost');
-  var fMargin    = $('#calcMargin');
-  var results    = $('#calcResults');
-  var statusBox  = $('#calcStatus');
-  var statusText = $('#calcStatusText');
-  var calculated = false;   // после первого расчёта пересчитываем на лету
-
-  // Состояние последнего успешного расчёта — нужно блоку примерки
-  var state = { price: 0, cost: 0, margin: 0, minPrice: 0, maxPct: 0 };
-
-  /* ---------- Разбор и форматирование чисел ---------- */
-
-  // Принимаем и точку, и запятую, и пробелы в разрядах: «1 200,50» → 1200.5
-  function parseNumber(raw) {
-    var clean = String(raw).replace(/\s|\u00A0/g, '').replace(',', '.');
-    if (clean === '') return NaN;
-    return Number(clean);
-  }
-
-  function formatMoney(n) {
-    return n.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₽';
-  }
-
-  function formatPercent(n) {
-    return n.toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
-  }
-
-  /* ---------- Разделители разрядов прямо в поле ввода ----------
-     Форматируем на лету и возвращаем курсор на место: без этого
-     он прыгал бы в конец строки при каждой правке в середине. */
-
-  function groupDigits(value, useGrouping) {
-    // Оставляем только цифры и один разделитель дробной части
-    var clean = value.replace(/[^\d.,]/g, '').replace(/\./g, ',');
-    var parts = clean.split(',');
-    var intPart = parts[0].replace(/^0+(?=\d)/, '');   // убираем ведущие нули
-
-    var out = useGrouping
-      ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0')  // неразрывный пробел
-      : intPart;
-
-    if (parts.length > 1) {
-      out += ',' + parts.slice(1).join('').slice(0, 2);   // не больше двух знаков после запятой
-    }
-    return out;
-  }
-
-  function attachFormatting(input, useGrouping) {
-    input.addEventListener('input', function () {
-      var caret = input.selectionStart;
-      var raw   = input.value;
-
-      // Считаем значащие символы слева от курсора, чтобы вернуть его туда же
-      var significant = raw.slice(0, caret).replace(/[^\d,]/g, '').length;
-      var formatted = groupDigits(raw, useGrouping);
-      input.value = formatted;
-
-      var pos = 0, seen = 0;
-      while (pos < formatted.length && seen < significant) {
-        if (/[\d,]/.test(formatted[pos])) seen++;
-        pos++;
-      }
-      input.setSelectionRange(pos, pos);
-    });
-  }
-
-  attachFormatting(fPrice, true);
-  attachFormatting(fCost, true);
-  attachFormatting(fMargin, false);   // проценты в разряды не разбиваем
-
-  /* ---------- Вывод состояний ---------- */
-
-  function setFieldError(input, errorId, message) {
-    var box = $('#' + errorId);
-    if (message) {
-      input.classList.add('is-invalid');
-      input.setAttribute('aria-invalid', 'true');
-      box.textContent = message;
-      box.hidden = false;
-    } else {
-      input.classList.remove('is-invalid');
-      input.removeAttribute('aria-invalid');
-      box.hidden = true;
-    }
-  }
-
-  function setStatus(kind, title, text) {
-    statusBox.classList.remove('calc__status--ok', 'calc__status--warn');
-    if (kind) statusBox.classList.add('calc__status--' + kind);
-
-    statusText.innerHTML = '';
-    if (title) {
-      var b = document.createElement('b');
-      b.textContent = title;
-      statusText.appendChild(b);
-    }
-    statusText.appendChild(document.createTextNode(text));
-  }
-
-  function resetResults(message) {
-    results.classList.add('is-empty');
-    $('#resMinPrice').textContent = '—';
-    $('#resDiscount').textContent = '—';
-    $('#resDiscountRub').textContent = '';
-    $('#resBaseMargin').textContent = '';
-    $('#calcTry').hidden = true;
-    $('#calcScripts').hidden = true;
-    setStatus(null, '', message);
-  }
-
-  /* ---------- Расчёт ---------- */
-
-  function calculate() {
-    var price  = parseNumber(fPrice.value);
-    var cost   = parseNumber(fCost.value);
-    var margin = parseNumber(fMargin.value);
-    var ok = true;
-
-    if (isNaN(price)) {
-      setFieldError(fPrice, 'errPrice', 'Укажите базовую цену'); ok = false;
-    } else if (price <= 0) {
-      setFieldError(fPrice, 'errPrice', 'Цена должна быть больше нуля'); ok = false;
-    } else {
-      setFieldError(fPrice, 'errPrice', '');
-    }
-
-    if (isNaN(cost)) {
-      setFieldError(fCost, 'errCost', 'Укажите себестоимость'); ok = false;
-    } else {
-      setFieldError(fCost, 'errCost', '');
-    }
-
-    if (isNaN(margin)) {
-      setFieldError(fMargin, 'errMargin', 'Укажите минимальную маржу'); ok = false;
-    } else if (margin >= 100) {
-      // При 100% формула делит на ноль: цены с такой маржой не существует
-      setFieldError(fMargin, 'errMargin', 'Маржа должна быть меньше 100 %'); ok = false;
-    } else {
-      setFieldError(fMargin, 'errMargin', '');
-    }
-
-    if (!ok) {
-      resetResults('Проверьте выделенные поля.');
-      return false;
-    }
-
-    // Минимальную цену округляем вверх до копейки — в пользу маржи
-    var minPrice = Math.ceil((cost / (1 - margin / 100)) * 100) / 100;
-    var maxPct   = Math.floor(((price - minPrice) / price * 100) * 10) / 10;  // вниз до 0,1 %
-    var maxRub   = Math.floor(price * (maxPct / 100) * 100) / 100;
-    var baseMargin = (price - cost) / price * 100;
-
-    // Сохраняем для блока примерки
-    state = { price: price, cost: cost, margin: margin, minPrice: minPrice, maxPct: Math.max(maxPct, 0) };
-
-    results.classList.remove('is-empty');
-    $('#resMinPrice').textContent = formatMoney(minPrice);
-    $('#resBaseMargin').textContent = 'Маржа базовой цены: ' + formatPercent(baseMargin);
-
-    if (maxPct < 0) {
-      $('#resDiscount').textContent = '0,0 %';
-      $('#resDiscountRub').textContent = 'Не хватает ' + formatMoney(minPrice - price) + ' до минимальной цены';
-      setStatus('warn', 'Скидка невозможна',
-        'Базовая цена уже ниже минимально допустимой. Продажа по текущей цене не обеспечивает маржу ' +
-        formatPercent(margin) + '. Согласуйте цену с руководителем.');
-    } else if (maxPct < 1) {
-      $('#resDiscount').textContent = formatPercent(maxPct);
-      $('#resDiscountRub').textContent = 'Это ' + formatMoney(maxRub) + ' от базовой цены';
-      setStatus('warn', 'Запас почти исчерпан',
-        'Базовая цена практически равна минимальной. Любая заметная скидка уведёт сделку ниже маржи ' +
-        formatPercent(margin) + '.');
-    } else {
-      $('#resDiscount').textContent = formatPercent(maxPct);
-      $('#resDiscountRub').textContent = 'Это ' + formatMoney(maxRub) + ' от базовой цены';
-      setStatus('ok', 'Скидку давать можно',
-        'При цене не ниже ' + formatMoney(minPrice) + ' маржа останется на уровне ' +
-        formatPercent(margin) + ' и выше.');
-    }
-
-    fillExplanation();
-    setupTry();
-    return true;
-  }
-
-  calcForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (calculate()) calculated = true;
-  });
-
-  // После первого расчёта результат обновляется сразу при правке полей —
-  // иначе на экране остались бы цифры от старых значений.
-  [fPrice, fCost, fMargin].forEach(function (input) {
-    input.addEventListener('input', function () {
-      if (calculated) calculate();
-    });
-  });
-
-  /* ---------- Копирование минимальной цены ---------- */
-
-  // Общая функция копирования: используется и ценой, и скриптами
-  function copyText(text, okMessage) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () {
-        showToast(okMessage);
-      }).catch(function () {
-        showToast('Не удалось скопировать — выделите текст вручную', 'error');
+  Array.prototype.forEach.call(document.querySelectorAll('.pick'), function(btn){
+    btn.addEventListener('click', function(){
+      var i = Number(btn.getAttribute('data-plan'));
+      Array.prototype.forEach.call(document.querySelectorAll('.plan'), function(pl){
+        pl.classList.toggle('picked', Number(pl.getAttribute('data-plan')) === i);
       });
-    } else {
-      showToast('Копирование недоступно в этом браузере', 'error');
-    }
-  }
-
-  $('#copyMinPrice').addEventListener('click', function () {
-    if (results.classList.contains('is-empty')) return;
-
-    // В буфер кладём чистое число без валюты и пробелов — его удобно
-    // вставить в счёт или CRM
-    var plain = state.minPrice.toFixed(2).replace('.', ',');
-    copyText(plain, 'Минимальная цена скопирована: ' + plain);
+      var note = $('cta-pick');
+      note.textContent = 'Выбранный тариф: «' + PLANS[i].name + '» — ' + f0.format(PLANS[i].fee) + ' ₽ в месяц'
+        + (PLANS[i].impl > 0 ? ', внедрение ' + f0.format(PLANS[i].impl) + ' ₽ разово' : ', внедрение включено') + '.';
+      note.hidden = false;
+      var smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      note.scrollIntoView({behavior: smooth ? 'smooth' : 'auto', block:'center'});
+    });
   });
 
-  /* ---------- Примерка конкретной скидки ---------- */
-
-  var tryBox   = $('#calcTry');
-  var tryRange = $('#tryRange');
-
-  function setupTry() {
-    // Верхнюю границу ставим с запасом над пределом, чтобы было видно,
-    // что происходит при его превышении
-    var max = Math.min(100, Math.max(5, Math.ceil(state.maxPct) + 15));
-    tryRange.max = max;
-
-    if (Number(tryRange.value) > max) tryRange.value = max;
-    tryBox.hidden = false;
-    updateTry();
-  }
-
-  function updateTry() {
-    var pct = Number(tryRange.value);
-
-    // Заполнение дорожки
-    tryRange.style.setProperty('--fill', (pct / Number(tryRange.max)) * 100 + '%');
-
-    var finalPrice = state.price * (1 - pct / 100);
-    var profit     = finalPrice - state.cost;
-    var marginNow  = finalPrice > 0 ? (profit / finalPrice) * 100 : 0;
-    var over       = pct > state.maxPct;
-
-    tryBox.classList.toggle('is-over', over);
-
-    $('#tryPct').textContent    = formatPercent(pct);
-    $('#tryPrice').textContent  = formatMoney(finalPrice);
-    $('#tryMargin').textContent = formatPercent(marginNow);
-    $('#tryProfit').textContent = formatMoney(profit);
-
-    $('#tryNote').textContent = over
-      ? 'Скидка превышает допустимый предел ' + formatPercent(state.maxPct) +
-        '. Такая сделка требует согласования.'
-      : 'В пределах допустимого. Остаётся запас ' + formatPercent(state.maxPct - pct) + '.';
-
-    // Скрипты строим по допустимой части: предлагать клиенту то,
-    // что не согласовано, нельзя
-    renderScripts(Math.min(pct, state.maxPct));
-  }
-
-  tryRange.addEventListener('input', updateTry);
-
-  /* ---------- Разбор расчёта простыми словами ---------- */
-
-  // Деньги без копеек — так формулы и сообщения читаются легче
-  function formatMoneyShort(n) {
-    return Math.round(n).toLocaleString('ru-RU') + ' ₽';
-  }
-
-  function fillExplanation() {
-    var share = 1 - state.margin / 100;   // доля себестоимости в цене
-
-    $('#expMargin').textContent    = formatPercent(state.margin);
-    $('#expMarginRub').textContent = state.margin.toLocaleString('ru-RU', { maximumFractionDigits: 1 }) + ' ₽';
-
-    $('#expFormula1').textContent =
-      formatMoneyShort(state.cost) + ' ÷ ' + share.toLocaleString('ru-RU', { maximumFractionDigits: 3 }) +
-      ' = ' + formatMoneyShort(state.minPrice);
-
-    $('#expFormula2').textContent =
-      '(' + formatMoneyShort(state.price) + ' − ' + formatMoneyShort(state.minPrice) + ') ÷ ' +
-      formatMoneyShort(state.price) + ' = ' + formatPercent(state.maxPct);
-
-    $('#expPlain').textContent = state.maxPct > 0
-      ? 'Проще говоря: ваш пол по цене — ' + formatMoneyShort(state.minPrice) +
-        '. Всё, что выше него, можно отдать клиенту скидкой. В деньгах это ' +
-        formatMoneyShort(state.price - state.minPrice) + ', или ' + formatPercent(state.maxPct) +
-        ' от базовой цены.'
-      : 'Проще говоря: ваш пол по цене — ' + formatMoneyShort(state.minPrice) +
-        ', а базовая цена ниже него. Запаса под скидку нет, наоборот — цену нужно поднимать.';
-  }
-
-  /* ---------- Скрипты для клиента ----------
-     Три сообщения под одну и ту же ситуацию, но с разной тактикой.
-     Числа подставляются из расчёта, в квадратных скобках остаются
-     места, которые менеджер заполняет сам. */
-
-  var scriptsBox  = $('#calcScripts');
-  var scriptsGrid = $('#scriptsGrid');
-  var scriptsNote = $('#scriptsNote');
-
-  function buildScripts(pct) {
-    // Итоговую цену округляем вверх до рубля — в пользу маржи
-    var finalPrice = Math.ceil(state.price * (1 - pct / 100));
-    var saved = state.price - finalPrice;
-
-    // Скидки нет: все три сценария удерживают цену
-    if (pct <= 0) {
-      return [
-        {
-          label: 'Ценность вместо скидки',
-          goal: 'Когда снижать нельзя, но терять клиента не хочется',
-          text: '[Имя], добрый день!\n\nПо [позиции] цена — ' + formatMoneyShort(state.price) +
-                '. Снизить её я, к сожалению, не могу: это себестоимость плюс минимальная рентабельность.\n\n' +
-                'Зато в цену уже входит [гарантия / доставка / настройка] — то, что обычно оплачивается отдельно. ' +
-                'Готов зафиксировать эту стоимость за вами до [дата].'
-        },
-        {
-          label: 'Другая конфигурация',
-          goal: 'Сдвинуть разговор с цены на состав предложения',
-          text: '[Имя], добрый день!\n\nПо текущей комплектации ' + formatMoneyShort(state.price) +
-                ' — это минимум, ниже уйти не получится.\n\n' +
-                'Но бюджет можно уложить иначе: есть вариант без [опция], он выйдет дешевле. ' +
-                'Скажите, какая сумма для вас комфортна, и я подберу состав под неё.'
-        },
-        {
-          label: 'Объём или сроки',
-          goal: 'Предложить условия, при которых скидка станет возможной',
-          text: '[Имя], добрый день!\n\nНа одну позицию цена ' + formatMoneyShort(state.price) +
-                ' — она уже на минимуме.\n\n' +
-                'Если речь о партии от [количество] или о работе на [срок], смогу вернуться с другой ценой: ' +
-                'на объёме экономика считается иначе. Подскажите ваши планы — пересчитаю.'
-        }
-      ];
-    }
-
-    // Скидка возможна
-    return [
-      {
-        label: 'Мягкий заход',
-        goal: 'Оставить запас для торга — предлагает половину лимита',
-        text: '[Имя], добрый день!\n\nПо [позиции] базовая цена — ' + formatMoneyShort(state.price) +
-              '. Обсудил ваш вопрос и готов предложить ' + formatPercent(pct / 2) + ' — это ' +
-              formatMoneyShort(Math.ceil(state.price * (1 - pct / 200))) + '.\n\n' +
-              'Если решение примете до [дата], зафиксирую эту цену. Оформляем?'
-      },
-      {
-        label: 'Максимум сразу',
-        goal: 'Когда клиент торгуется жёстко и время дороже маржи',
-        text: '[Имя], добрый день!\n\nПосмотрел, что могу сделать по цене. Базовая — ' +
-              formatMoneyShort(state.price) + ', для вас готов дать ' + formatPercent(pct) +
-              '. Итог — ' + formatMoneyShort(finalPrice) + ', экономия ' + formatMoneyShort(saved) + '.\n\n' +
-              'Скажу честно: это предел, ниже я уйти не смогу. Предложение действует до [дата].'
-      },
-      {
-        label: 'Скидка в обмен',
-        goal: 'Отдать скидку не бесплатно, а за встречное условие',
-        text: '[Имя], добрый день!\n\nПо [позиции] цена — ' + formatMoneyShort(state.price) +
-              '. Скидку ' + formatPercent(pct) + ' до ' + formatMoneyShort(finalPrice) +
-              ' готов дать при одном из условий:\n' +
-              '— полная предоплата;\n' +
-              '— объём от [количество];\n' +
-              '— отгрузка до [дата].\n\n' +
-              'Что из этого вам подходит?'
-      }
-    ];
-  }
-
-  function renderScripts(pct) {
-    var items = buildScripts(pct);
-    scriptsGrid.innerHTML = '';
-
-    items.forEach(function (item) {
-      var card = document.createElement('article');
-      card.className = 'script';
-
-      var label = document.createElement('span');
-      label.className = 'script__label';
-      label.textContent = item.label;
-
-      var goal = document.createElement('p');
-      goal.className = 'script__goal';
-      goal.textContent = item.goal;
-
-      var text = document.createElement('p');
-      text.className = 'script__text';
-      text.textContent = item.text;   // textContent, а не innerHTML: текст пользовательский
-
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn btn--outline';
-      btn.textContent = 'Скопировать';
-      btn.addEventListener('click', function () {
-        copyText(item.text, 'Скрипт «' + item.label + '» скопирован');
-      });
-
-      card.appendChild(label);
-      card.appendChild(goal);
-      card.appendChild(text);
-      card.appendChild(btn);
-      scriptsGrid.appendChild(card);
-    });
-
-    scriptsNote.textContent = pct > 0
-      ? 'Под скидку ' + formatPercent(pct) + '. Двигайте ползунок — тексты пересчитаются.'
-      : 'Скидка недоступна — сообщения удерживают базовую цену.';
-
-    scriptsBox.hidden = false;
-  }
-
-  /* ============================================================
-     11. СТАРТ
-     Прогресс-бар запускается после отрисовки страницы.
-     ============================================================ */
-  window.addEventListener('load', runProgress);
-
+  calc();
 })();
 </script>
-
 </body>
 </html>
